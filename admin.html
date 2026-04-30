@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSDA Smart Asset Management - ระบบหลังบ้าน (Firebase)</title>
+    
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --kmitl: #FF6600; }
+        * { font-family: 'Sarabun', sans-serif; box-sizing: border-box; }
+        body { background: #f8fafc; display: flex; height: 100vh; overflow: hidden; }
+        
+        .sidebar { width: 260px; background: white; border-right: 1px solid #e2e8f0; padding: 25px; display: flex; flex-direction: column; flex-shrink: 0; z-index: 40; }
+        .nav-btn { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-radius: 12px; color: #64748b; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 8px; }
+        .nav-btn:hover { background: #f1f5f9; color: #0f172a; }
+        .nav-btn.active { background: var(--kmitl); color: white; box-shadow: 0 4px 12px rgba(255, 102, 0, 0.2); }
+        
+        .content-area { flex-grow: 1; padding: 40px; overflow-y: auto; }
+        .card { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+        
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 60; align-items: center; justify-content: center; padding: 16px; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 24px; width: 100%; max-width: 500px; padding: 32px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); max-height: 90vh; overflow-y: auto; }
+
+        .btn-primary { background: var(--kmitl); color: white; padding: 10px 20px; border-radius: 10px; font-weight: 700; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn-primary:hover { background: #e65c00; transform: translateY(-1px); }
+        .btn-primary:active { transform: translateY(1px); }
+
+        /* Toast Notification */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 100; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: #333; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transform: translateY(20px); transition: all 0.3s ease; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+
+        /* Loader */
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--kmitl); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .btn-loading { pointer-events: none; opacity: 0.8; }
+        
+        /* ปรับแต่งปฏิทินให้แสดงสถานะและชื่อได้เต็มที่ไม่ตกกรอบ */
+        .fc-event {
+            border: none !important;
+            border-radius: 8px !important;
+            margin-bottom: 4px !important;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+        .fc-daygrid-event {
+            white-space: normal !important;
+            align-items: normal !important;
+        }
+        .custom-event-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 6px;
+            white-space: normal !important;
+            word-wrap: break-word;
+        }
+        .custom-event-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11.5px;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            width: max-content;
+        }
+        .custom-event-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+            line-height: 1.3;
+        }
+        .custom-event-user {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            line-height: 1.2;
+        }
+        .fc-daygrid-event-dot {
+            display: none !important;
+        }
+        .fc-event-main {
+            padding: 0 !important;
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #e2e8f0; padding: 15px; flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+            .sidebar > div:first-child { margin-bottom: 0 !important; }
+            nav { display: flex; gap: 5px; width: 100%; margin-top: 15px; overflow-x: auto; padding-bottom: 5px; }
+            .nav-btn { margin-bottom: 0; white-space: nowrap; padding: 10px 14px; }
+            .content-area { padding: 20px; }
+            .hide-on-mobile { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="flex items-center gap-3 mb-10">
+            <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+                <i data-lucide="shield-check"></i>
+            </div>
+            <div>
+                <h1 class="font-black text-slate-800 text-lg leading-tight">OSDA Admin</h1>
+                <p class="text-xs font-bold text-orange-500 uppercase tracking-wider">Management</p>
+            </div>
+        </div>
+
+        <nav class="flex-grow">
+            <div class="nav-btn active" onclick="switchTab('assets', this)">
+                <i data-lucide="package" class="w-5 h-5"></i>
+                <span>คลังอุปกรณ์</span>
+            </div>
+            <div class="nav-btn" onclick="switchTab('requests', this)">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+                <span class="flex-grow">คำขอยืม</span>
+                <span id="pending-count" class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full hidden">0</span>
+            </div>
+            <div class="nav-btn" onclick="switchTab('calendar-view', this)">
+                <i data-lucide="calendar" class="w-5 h-5"></i>
+                <span>ปฏิทิน</span>
+            </div>
+            <div class="nav-btn" onclick="switchTab('history', this)">
+                <i data-lucide="history" class="w-5 h-5"></i>
+                <span>ประวัติ</span>
+            </div>
+        </nav>
+        
+        <div id="connection-status" class="mt-4 flex items-center gap-2 text-xs font-bold text-slate-400 justify-center lg:justify-start">
+            <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span> กำลังเชื่อมต่อ...
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-area">
+        
+        <!-- Tab 1: Assets -->
+        <div id="tab-assets" class="tab-content block">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800">คลังอุปกรณ์</h2>
+                    <p class="text-slate-500 mt-1">จัดการรายการอุปกรณ์ทั้งหมดในระบบ</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <!-- ระบบค้นหาอุปกรณ์ (Admin) -->
+                    <div class="relative w-full sm:w-64">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"></i>
+                        <input type="text" oninput="filterAssets(this.value)" placeholder="ค้นหาอุปกรณ์..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm">
+                    </div>
+                    <button onclick="openModal('add-asset-modal')" class="btn-primary flex items-center gap-2 w-full sm:w-auto">
+                        <i data-lucide="plus" class="w-4 h-4"></i> เพิ่มอุปกรณ์
+                    </button>
+                </div>
+            </div>
+            <div id="assets-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <p class="text-slate-400 col-span-full py-10 text-center font-bold">กำลังโหลดข้อมูล...</p>
+            </div>
+        </div>
+
+        <!-- Tab 2: Requests -->
+        <div id="tab-requests" class="tab-content hidden">
+            <div class="mb-8">
+                <h2 class="text-2xl font-black text-slate-800">จัดการคำขอยืม</h2>
+                <p class="text-slate-500 mt-1">อนุมัติและจัดการสถานะการยืม-คืนอุปกรณ์</p>
+            </div>
+            <div class="card overflow-x-auto p-0">
+                <table class="w-full text-left min-w-[700px]">
+                    <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider font-bold">
+                        <tr>
+                            <th class="p-4">อุปกรณ์</th>
+                            <th class="p-4">ผู้ยืม / เบอร์ติดต่อ</th>
+                            <th class="p-4">ช่วงเวลา</th>
+                            <th class="p-4">สถานะ</th>
+                            <th class="p-4 text-right">การจัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requests-table" class="divide-y divide-slate-100">
+                        <tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">กำลังโหลดข้อมูล...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 3: Calendar -->
+        <div id="tab-calendar-view" class="tab-content hidden">
+            <div class="mb-8">
+                <h2 class="text-2xl font-black text-slate-800">ปฏิทินการยืม</h2>
+                <p class="text-slate-500 mt-1">ภาพรวมการใช้งานอุปกรณ์ทั้งหมด</p>
+            </div>
+            <div class="card p-2 md:p-6">
+                <div id="calendar" class="min-h-[500px]"></div>
+            </div>
+        </div>
+
+        <!-- Tab 4: History -->
+        <div id="tab-history" class="tab-content hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800">ประวัติการทำรายการ</h2>
+                    <p class="text-slate-500 mt-1">รายการยืม-คืนที่เสร็จสิ้นแล้วทั้งหมด</p>
+                </div>
+                <!-- ปุ่มล้างประวัติ -->
+                <button onclick="openModal('clear-history-modal')" class="bg-red-50 text-red-600 hover:bg-red-500 hover:text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i> ล้างประวัติทั้งหมด
+                </button>
+            </div>
+            <div class="card overflow-x-auto p-0">
+                <table class="w-full text-left min-w-[700px]">
+                    <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider font-bold">
+                        <tr>
+                            <th class="p-4">อุปกรณ์</th>
+                            <th class="p-4">ผู้ยืม</th>
+                            <th class="p-4">วันที่ยืม</th>
+                            <th class="p-4">วันที่คืนจริง</th>
+                            <th class="p-4">ผลลัพธ์</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table" class="divide-y divide-slate-100">
+                        <tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">กำลังโหลดข้อมูล...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modals -->
+    <div id="add-asset-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-black text-slate-800">เพิ่มอุปกรณ์ใหม่</h3>
+                <button onclick="closeModal('add-asset-modal')" class="text-slate-400 hover:text-red-500"><i data-lucide="x"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">รูปภาพอุปกรณ์</label>
+                    <input type="file" id="asset-image" accept="image/*" class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">ชื่ออุปกรณ์</label>
+                    <input type="text" id="asset-name" class="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100" placeholder="เช่น กล้อง Canon EOS R5">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">รายละเอียด / ซีเรียล</label>
+                    <input type="text" id="asset-desc" class="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100" placeholder="รายละเอียดเพิ่มเติม">
+                </div>
+                <button onclick="addAsset(this)" class="btn-primary w-full mt-4">
+                    <div class="loader hidden"></div>
+                    <span>บันทึกอุปกรณ์</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Detail Modal (แสดงรายละเอียด & รูปถ่ายยืนยัน) -->
+    <div id="event-detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-black text-slate-800">รายละเอียดการยืม</h3>
+                <button onclick="closeModal('event-detail-modal')" class="text-slate-400 hover:text-red-500"><i data-lucide="x"></i></button>
+            </div>
+            <div id="event-detail-content" class="space-y-4"></div>
+            <button onclick="closeModal('event-detail-modal')" class="w-full mt-6 bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">ปิดหน้าต่าง</button>
+        </div>
+    </div>
+
+    <!-- Modal ยืนยันการล้างประวัติ -->
+    <div id="clear-history-modal" class="modal">
+        <div class="modal-content text-center">
+            <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-xl font-black text-slate-800 mb-2">ยืนยันการล้างประวัติ?</h3>
+            <p class="text-sm text-slate-500 mb-6">คุณกำลังจะลบประวัติการยืม-คืนที่เสร็จสิ้นแล้วทั้งหมด ข้อมูลนี้จะไม่สามารถกู้คืนได้</p>
+            <div class="flex gap-3">
+                <button onclick="closeModal('clear-history-modal')" class="flex-1 bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">ยกเลิก</button>
+                <button onclick="confirmClearHistory(this)" class="flex-1 bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600 transition-colors flex justify-center items-center gap-2">
+                    <div class="loader hidden"></div>
+                    <span>ล้างข้อมูล</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ==========================================
+        // 🔧 ตั้งค่า FIREBASE ของคุณ
+        // ==========================================
+        const myFirebaseConfig = {
+            apiKey: "AIzaSyDJR7Krbe6cMBfQr2HkVshpE8JgxnPzBcQ",
+            authDomain: "osda-system.firebaseapp.com",
+            projectId: "osda-system",
+            storageBucket: "osda-system.firebasestorage.app",
+            messagingSenderId: "207457868371",
+            appId: "1:207457868371:web:8fa412794c6f52171b84a6",
+            measurementId: "G-G8DZNHYQM4"
+        };
+        
+        const isCanvasEnv = typeof __firebase_config !== 'undefined' && __firebase_config;
+        const firebaseConfig = isCanvasEnv ? JSON.parse(__firebase_config) : myFirebaseConfig;
+        const myAppId = typeof __app_id !== 'undefined' ? __app_id : "osda-system-app";
+
+        let app, auth, db, user;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (e) {
+            console.error("Firebase Init Error:", e);
+        }
+
+        let assets = [];
+        let bookings = [];
+        let calendar = null;
+        
+        // ตัวแปรค้นหา
+        let currentSearchQuery = '';
+        let currentRequestsQuery = '';
+        let currentHistoryQuery = '';
+
+        // ฟังก์ชันแปลงรูปแบบเวลาเป็น วัน-เดือน-ปี ชั่วโมง:นาที น.
+        function formatThaiDateTime(dateStr) {
+            if (!dateStr) return '-';
+            if (dateStr.includes(' น.')) return dateStr.replace(' น.', '&nbsp;น.');
+            try {
+                const dateObj = new Date(dateStr);
+                if (isNaN(dateObj)) return dateStr;
+                
+                const day = String(dateObj.getDate()).padStart(2, '0');
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const year = dateObj.getFullYear();
+                const hours = String(dateObj.getHours()).padStart(2, '0');
+                const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                
+                return `${day}-${month}-${year} ${hours}:${minutes}&nbsp;น.`;
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Auth error:", error);
+                let errorMsg = "เชื่อมต่อล้มเหลว ตรวจสอบการตั้งค่า Firebase";
+                if (error.code === 'auth/configuration-not-found' || error.code === 'auth/operation-not-allowed') {
+                    errorMsg = "โปรดเปิดใช้งาน 'Anonymous' (ไม่ระบุตัวตน) ใน Firebase Console";
+                }
+                document.getElementById('connection-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500"></span> ${errorMsg}`;
+                showToast(errorMsg, 'error');
+            }
+        }
+
+        onAuthStateChanged(auth, (u) => {
+            if (u) {
+                user = u;
+                document.getElementById('connection-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-green-500"></span> เชื่อมต่อฐานข้อมูลสำเร็จ`;
+                subscribeToData(); 
+            }
+        });
+
+        function subscribeToData() {
+            if (!user) return;
+            
+            const assetsRef = collection(db, 'artifacts', myAppId, 'public', 'data', 'assets');
+            const bookingsRef = collection(db, 'artifacts', myAppId, 'public', 'data', 'bookings');
+
+            onSnapshot(assetsRef, (snapshot) => {
+                assets = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAssets(currentSearchQuery);
+                if (calendar) updateCalendarEvents();
+            });
+
+            onSnapshot(bookingsRef, (snapshot) => {
+                bookings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderRequests();
+                renderHistory();
+                updatePendingBadge();
+                if (calendar) updateCalendarEvents();
+            });
+        }
+        
+        async function compressImage(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 600; 
+                        const scale = img.width > MAX_WIDTH ? MAX_WIDTH / img.width : 1;
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.8)); 
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            if (tabId === 'calendar-view') {
+                if (!calendar) initCalendar();
+                else calendar.render(); 
+            }
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { 
+            document.getElementById(id).classList.remove('active'); 
+            if(id === 'add-asset-modal') {
+                document.getElementById('asset-name').value = '';
+                document.getElementById('asset-desc').value = '';
+                document.getElementById('asset-image').value = '';
+            }
+        }
+
+        async function addAsset(btn) {
+            if(!user) return showToast('ยังไม่ได้เชื่อมต่อระบบฐานข้อมูล', 'error');
+            const name = document.getElementById('asset-name').value;
+            const desc = document.getElementById('asset-desc').value;
+            const fileInput = document.getElementById('asset-image');
+
+            if (!name) return showToast('กรุณากรอกชื่ออุปกรณ์', 'error');
+
+            btn.classList.add('btn-loading');
+            btn.querySelector('.loader').style.display = 'block';
+            btn.querySelector('span').innerText = 'กำลังบันทึก...';
+
+            try {
+                let base64Image = null;
+                if (fileInput.files.length > 0) {
+                    base64Image = await compressImage(fileInput.files[0]);
+                }
+
+                const newId = 'AST-' + Date.now();
+                const newAsset = { name, desc, image: base64Image, createdAt: new Date().toISOString() };
+                
+                // บันทึกลง Firebase
+                await setDoc(doc(db, 'artifacts', myAppId, 'public', 'data', 'assets', newId), newAsset);
+                
+                closeModal('add-asset-modal');
+                showToast('เพิ่มอุปกรณ์เรียบร้อยแล้ว');
+            } catch (error) {
+                console.error(error);
+                showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error');
+            }
+
+            btn.classList.remove('btn-loading');
+            btn.querySelector('.loader').style.display = 'none';
+            btn.querySelector('span').innerText = 'บันทึกอุปกรณ์';
+        }
+
+        async function deleteAsset(id) {
+            if(!user) return;
+            const isUsed = bookings.some(b => b.assetId === id && ['pending', 'approved', 'borrowed'].includes(b.status));
+            if(isUsed) return showToast('ไม่สามารถลบได้ มีรายการยืมค้างอยู่', 'error');
+
+            try {
+                await deleteDoc(doc(db, 'artifacts', myAppId, 'public', 'data', 'assets', id));
+                showToast('ลบอุปกรณ์แล้ว');
+            } catch (error) {
+                console.error(error);
+                showToast('เกิดข้อผิดพลาดในการลบ', 'error');
+            }
+        }
+
+        async function updateBookingStatus(id, newStatus) {
+            if(!user) return;
+            try {
+                const updateData = { status: newStatus };
+                if(newStatus === 'returned' || newStatus === 'rejected') {
+                    // บันทึกเวลาที่เปลี่ยนสถานะด้วยฟังก์ชัน formatThaiDateTime ทันที
+                    updateData.returnDate = formatThaiDateTime(new Date().toISOString());
+                }
+                await updateDoc(doc(db, 'artifacts', myAppId, 'public', 'data', 'bookings', id), updateData);
+                showToast(`อัปเดตสถานะสำเร็จ`);
+            } catch (error) {
+                console.error(error);
+                showToast('อัปเดตไม่สำเร็จ', 'error');
+            }
+        }
+
+        // --- ระบบค้นหา ---
+        window.filterAssets = function(query) {
+            currentSearchQuery = query;
+            renderAssets(query);
+        }
+
+        function renderAssets(searchQuery = '') {
+            const grid = document.getElementById('assets-grid');
+            
+            const filteredAssets = assets.filter(a => {
+                const term = searchQuery.toLowerCase();
+                return a.name.toLowerCase().includes(term) || (a.desc && a.desc.toLowerCase().includes(term));
+            });
+
+            grid.innerHTML = filteredAssets.map(a => `
+                <div class="card relative group">
+                    <button onclick="deleteAsset('${a.id}')" class="absolute top-2 right-2 bg-red-100 text-red-500 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                    <div class="h-32 bg-slate-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
+                        ${a.image ? `<img src="${a.image}" class="w-full h-full object-cover">` : `<i data-lucide="image" class="w-8 h-8 text-slate-300"></i>`}
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-lg leading-tight mb-1">${a.name}</h3>
+                    <p class="text-xs text-slate-400 font-medium line-clamp-2">${a.desc}</p>
+                </div>
+            `).join('') || '<p class="text-slate-400 col-span-full py-10 text-center font-bold">ไม่พบอุปกรณ์ที่ค้นหา</p>';
+            lucide.createIcons();
+        }
+
+        const statusConfig = {
+            'pending': { color: 'bg-yellow-100 text-yellow-700', label: 'รออนุมัติ' },
+            'approved': { color: 'bg-blue-100 text-blue-700', label: 'รอรับอุปกรณ์' },
+            'borrowed': { color: 'bg-indigo-100 text-indigo-700', label: 'กำลังยืม' },
+            'returned': { color: 'bg-green-100 text-green-700', label: 'คืนแล้ว' },
+            'rejected': { color: 'bg-red-100 text-red-700', label: 'ถูกปฏิเสธ' }
+        };
+
+        // --- ระบบค้นหาสำหรับหน้าคำขอยืม ---
+        window.filterRequests = function(query) {
+            currentRequestsQuery = query;
+            renderRequests();
+        }
+
+        function renderRequests() {
+            const table = document.getElementById('requests-table');
+            let activeRequests = bookings.filter(b => ['pending', 'approved', 'borrowed'].includes(b.status));
+            
+            // กรองข้อมูลการค้นหา
+            if (currentRequestsQuery) {
+                const term = currentRequestsQuery.toLowerCase();
+                activeRequests = activeRequests.filter(b => {
+                    const asset = assets.find(a => a.id === b.assetId);
+                    const assetName = asset ? asset.name.toLowerCase() : '';
+                    const userName = (b.user || '').toLowerCase();
+                    const phone = (b.phone || '').toLowerCase();
+                    return assetName.includes(term) || userName.includes(term) || phone.includes(term);
+                });
+            }
+
+            table.innerHTML = activeRequests.map(b => {
+                const asset = assets.find(a => a.id === b.assetId);
+                const conf = statusConfig[b.status] || { color:'bg-slate-100', label: b.status };
+                
+                let actionBtns = '';
+                if (b.status === 'pending') {
+                    actionBtns = `
+                        <button onclick="updateBookingStatus('${b.id}', 'approved')" class="text-xs bg-blue-50 text-blue-600 px-3 py-1.5 rounded-md font-bold hover:bg-blue-600 hover:text-white transition-colors">อนุมัติ</button>
+                        <button onclick="updateBookingStatus('${b.id}', 'rejected')" class="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-md font-bold hover:bg-red-600 hover:text-white transition-colors">ปฏิเสธ</button>
+                    `;
+                } else if (b.status === 'approved') {
+                    actionBtns = `<button onclick="updateBookingStatus('${b.id}', 'borrowed')" class="text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-md font-bold hover:bg-indigo-600 hover:text-white transition-colors border border-indigo-200">บังคับปล่อยของ</button>`;
+                } else if (b.status === 'borrowed') {
+                    actionBtns = `<button onclick="updateBookingStatus('${b.id}', 'returned')" class="text-xs bg-green-50 text-green-600 px-3 py-1.5 rounded-md font-bold hover:bg-green-600 hover:text-white transition-colors">รับคืน</button>`;
+                }
+
+                return `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="p-4">
+                        <div class="font-bold text-slate-800 cursor-pointer hover:text-orange-500" onclick="showEventDetails('${b.id}')">${asset?.name || 'อุปกรณ์ถูกลบ'}</div>
+                    </td>
+                    <td class="p-4">
+                        <p class="font-black text-slate-800 text-base">${b.user}</p>
+                        <p class="text-sm font-bold text-orange-600 font-mono mt-1 flex items-center gap-1"><i data-lucide="phone" class="w-4 h-4"></i> ${b.phone || '-'}</p>
+                    </td>
+                    <td class="p-4">
+                        <div class="bg-indigo-50 text-indigo-700 font-mono font-bold text-sm px-3 py-2 rounded-lg border border-indigo-100 inline-block">
+                            <div class="mb-1"><span class="text-[10px] text-indigo-400 uppercase tracking-wider block leading-none">รับ:</span> ${formatThaiDateTime(b.start)}</div>
+                            <div><span class="text-[10px] text-indigo-400 uppercase tracking-wider block leading-none">คืน:</span> ${formatThaiDateTime(b.end)}</div>
+                        </div>
+                    </td>
+                    <td class="p-4"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${conf.color}">${conf.label}</span></td>
+                    <td class="p-4 text-right flex gap-2 justify-end">${actionBtns}</td>
+                </tr>
+                `;
+            }).join('') || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">${currentRequestsQuery ? 'ไม่พบข้อมูลคำขอที่ค้นหา' : 'ไม่มีคำขอที่ต้องจัดการ'}</td></tr>`;
+            lucide.createIcons();
+        }
+
+        // --- ระบบค้นหาสำหรับหน้าประวัติ ---
+        window.filterHistory = function(query) {
+            currentHistoryQuery = query;
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const table = document.getElementById('history-table');
+            let history = bookings.filter(b => ['returned', 'rejected'].includes(b.status));
+            
+            // กรองข้อมูลการค้นหา
+            if (currentHistoryQuery) {
+                const term = currentHistoryQuery.toLowerCase();
+                history = history.filter(b => {
+                    const asset = assets.find(a => a.id === b.assetId);
+                    const assetName = asset ? asset.name.toLowerCase() : '';
+                    const userName = (b.user || '').toLowerCase();
+                    const phone = (b.phone || '').toLowerCase();
+                    return assetName.includes(term) || userName.includes(term) || phone.includes(term);
+                });
+            }
+            
+            table.innerHTML = history.map(b => {
+                const asset = assets.find(a => a.id === b.assetId);
+                const conf = statusConfig[b.status];
+                return `
+                <tr class="hover:bg-slate-50 cursor-pointer" onclick="showEventDetails('${b.id}')">
+                    <td class="p-4 font-bold text-slate-800">${asset?.name || 'อุปกรณ์ถูกลบ'}</td>
+                    <td class="p-4">
+                        <p class="font-black text-slate-700 text-base">${b.user}</p>
+                        <p class="text-sm font-bold text-orange-600 font-mono mt-1 flex items-center gap-1"><i data-lucide="phone" class="w-4 h-4"></i> ${b.phone || '-'}</p>
+                    </td>
+                    <td class="p-4 text-sm font-bold text-slate-700 font-mono">${formatThaiDateTime(b.start)}</td>
+                    <td class="p-4 text-sm font-black text-blue-600 font-mono">${formatThaiDateTime(b.returnDate)}</td>
+                    <td class="p-4"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${conf.color}">${conf.label}</span></td>
+                </tr>`;
+            }).join('') || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">${currentHistoryQuery ? 'ไม่พบข้อมูลประวัติที่ค้นหา' : 'ยังไม่มีประวัติการทำรายการ'}</td></tr>`;
+            lucide.createIcons();
+        }
+
+        // --- ระบบล้างประวัติ ---
+        window.confirmClearHistory = async function(btn) {
+            if(!user) return;
+            btn.classList.add('btn-loading');
+            btn.querySelector('.loader').style.display = 'block';
+            btn.querySelector('span').innerText = 'กำลังลบ...';
+
+            const historyToClear = bookings.filter(b => ['returned', 'rejected'].includes(b.status));
+            
+            try {
+                // วนลูปสั่งลบเอกสารประวัติทีละรายการ (ใช้ Promise.all ให้ทำงานพร้อมกัน)
+                await Promise.all(historyToClear.map(b => deleteDoc(doc(db, 'artifacts', myAppId, 'public', 'data', 'bookings', b.id))));
+                showToast(`ล้างประวัติจำนวน ${historyToClear.length} รายการสำเร็จ!`);
+            } catch(error) {
+                console.error(error);
+                showToast('เกิดข้อผิดพลาดในการล้างประวัติ', 'error');
+            }
+
+            btn.classList.remove('btn-loading');
+            btn.querySelector('.loader').style.display = 'none';
+            btn.querySelector('span').innerText = 'ล้างข้อมูล';
+            closeModal('clear-history-modal');
+        }
+
+        function updatePendingBadge() { 
+            const count = bookings.filter(b => b.status === 'pending').length; 
+            const badge = document.getElementById('pending-count'); 
+            badge.innerText = count; 
+            badge.classList.toggle('hidden', count === 0); 
+        }
+
+        function getCalendarEvents() {
+            const stLabel = {
+                'pending': 'รออนุมัติ',
+                'approved': 'รอรับของ',
+                'borrowed': 'กำลังยืม',
+                'returned': 'คืนแล้ว',
+                'rejected': 'ปฏิเสธ'
+            };
+            
+            return bookings.map(b => {
+                const assetName = assets.find(a => a.id === b.assetId)?.name || 'อุปกรณ์ถูกลบ';
+                
+                // กำหนดสีพื้นหลังให้ตรงกับสถานะ
+                let bgColor = '#f59e0b'; // pending (สีเหลือง)
+                if (b.status === 'approved') bgColor = '#0ea5e9'; // สีฟ้า
+                if (b.status === 'borrowed') bgColor = '#4f46e5'; // สีคราม
+                if (b.status === 'returned') bgColor = '#10b981'; // สีเขียว
+                if (b.status === 'rejected') bgColor = '#ef4444'; // สีแดง
+                
+                return { 
+                    id: b.id,
+                    title: `${assetName} (${b.user})`, 
+                    start: b.start, 
+                    end: b.end, 
+                    backgroundColor: bgColor, 
+                    borderColor: 'transparent',
+                    extendedProps: {
+                        statusLabel: stLabel[b.status] || b.status,
+                        assetName: assetName,
+                        userName: b.user
+                    }
+                };
+            });
+        }
+
+        function initCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, { 
+                initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth', 
+                locale: 'th', 
+                events: getCalendarEvents(),
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listMonth' },
+                eventDisplay: 'block',
+                displayEventTime: false,
+                eventClick: function(info) { showEventDetails(info.event.id); },
+                eventContent: function(arg) {
+                    const statusLabel = arg.event.extendedProps.statusLabel;
+                    const assetName = arg.event.extendedProps.assetName;
+                    const userName = arg.event.extendedProps.userName;
+
+                    // สร้างโครงสร้าง HTML แยกสถานะ ชื่ออุปกรณ์ และผู้ยืมให้อ่านง่าย
+                    return {
+                        html: `
+                            <div class="custom-event-content">
+                                <span class="custom-event-badge">${statusLabel}</span>
+                                <span class="custom-event-title">${assetName}</span>
+                                <span class="custom-event-user">👤 ${userName}</span>
+                            </div>
+                        `
+                    };
+                }
+            });
+            calendar.render();
+        }
+
+        function updateCalendarEvents() {
+            if (!calendar) return;
+            const eventSource = calendar.getEventSources()[0];
+            if(eventSource) eventSource.remove();
+            calendar.addEventSource(getCalendarEvents());
+        }
+
+        // เพิ่มการโชว์รูปถ่ายยืนยันใน Event Details
+        window.showEventDetails = function(bookingId) {
+            const b = bookings.find(x => x.id === bookingId);
+            if (!b) return;
+            const a = assets.find(x => x.id === b.assetId);
+            const conf = statusConfig[b.status];
+
+            const photoHTML = b.confirmationImage 
+                ? `<div class="col-span-2 mt-2"><p class="text-[10px] font-bold text-slate-400 uppercase mb-2">รูปถ่ายยืนยันรับอุปกรณ์</p><img src="${b.confirmationImage}" class="w-full rounded-xl border border-slate-200"></div>`
+                : '';
+
+            const content = `
+                <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 mb-2">
+                    <p class="text-[10px] font-bold text-orange-600 uppercase tracking-wider mb-1">อุปกรณ์</p>
+                    <p class="font-black text-lg text-slate-800">${a ? a.name : 'ไม่พบข้อมูลอุปกรณ์'}</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">ผู้ยืม</p>
+                        <p class="font-black text-slate-800 text-base leading-normal break-words">${b.user}</p>
+                        <p class="text-sm font-bold text-orange-600 font-mono mt-1 flex items-center gap-1"><i data-lucide="phone" class="w-4 h-4"></i> ${b.phone || 'ไม่ระบุ'}</p>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col justify-center items-start">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">สถานะ</p>
+                        <span class="px-3 py-1.5 rounded-full text-sm font-black uppercase ${conf.color} inline-block">${conf.label}</span>
+                    </div>
+                    <div class="col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                            <p class="text-[10px] font-bold text-indigo-400 uppercase mb-1">เวลารับของ</p>
+                            <p class="font-mono text-sm font-black text-indigo-800 whitespace-nowrap"><i data-lucide="calendar-clock" class="w-4 h-4 inline mb-0.5"></i> ${formatThaiDateTime(b.start)}</p>
+                        </div>
+                        <div class="p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                            <p class="text-[10px] font-bold text-indigo-400 uppercase mb-1">เวลาคืนของ</p>
+                            <p class="font-mono text-sm font-black text-indigo-800 whitespace-nowrap"><i data-lucide="calendar-check" class="w-4 h-4 inline mb-0.5"></i> ${formatThaiDateTime(b.end)}</p>
+                        </div>
+                    </div>
+                    ${photoHTML}
+                </div>
+            `;
+            document.getElementById('event-detail-content').innerHTML = content;
+            openModal('event-detail-modal');
+            lucide.createIcons();
+        }
+
+        window.switchTab = switchTab;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.addAsset = addAsset;
+        window.deleteAsset = deleteAsset;
+        window.updateBookingStatus = updateBookingStatus;
+
+        initAuth();
+
+    </script>
+</body>
+</html>

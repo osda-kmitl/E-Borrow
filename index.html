@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSDA Smart Asset - สำหรับผู้ใช้งาน (Firebase)</title>
+    
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- เพิ่มไลบรารีปฏิทิน Flatpickr สำหรับเลือก วัน-เวลา ภาษาไทย -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
+
+    <style>
+        :root { --kmitl: #FF6600; }
+        * { font-family: 'Sarabun', sans-serif; box-sizing: border-box; }
+        body { background: #f8fafc; display: flex; height: 100vh; overflow: hidden; }
+        
+        .sidebar { width: 260px; background: white; border-right: 1px solid #e2e8f0; padding: 25px; display: flex; flex-direction: column; flex-shrink: 0; z-index: 40; }
+        .nav-btn { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-radius: 12px; color: #64748b; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 8px; }
+        .nav-btn:hover { background: #f1f5f9; color: #0f172a; }
+        .nav-btn.active { background: var(--kmitl); color: white; box-shadow: 0 4px 12px rgba(255, 102, 0, 0.2); }
+        
+        .content-area { flex-grow: 1; padding: 40px; overflow-y: auto; position: relative; }
+        .card { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+        
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 60; align-items: center; justify-content: center; padding: 16px; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 24px; width: 100%; max-width: 550px; padding: 32px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); max-height: 90vh; overflow-y: auto; }
+
+        .btn-primary { background: var(--kmitl); color: white; padding: 10px 20px; border-radius: 10px; font-weight: 700; transition: all 0.2s; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn-primary:hover { background: #e65c00; transform: translateY(-1px); }
+        .btn-primary:active { transform: translateY(1px); }
+
+        .status-badge { padding: 4px 12px; border-radius: 99px; font-size: 11px; font-weight: 800; text-transform: uppercase; text-align: center; }
+
+        /* Toast */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 100; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: #333; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transform: translateY(20px); transition: all 0.3s ease; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+
+        .loader { border: 2px solid #ffffff; border-top: 2px solid transparent; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .btn-loading { pointer-events: none; opacity: 0.8; }
+        
+        /* ปรับแต่งปฏิทินให้แสดงสถานะและชื่อได้เต็มที่ไม่ตกกรอบ */
+        .fc-event {
+            border: none !important;
+            border-radius: 8px !important;
+            margin-bottom: 4px !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            cursor: pointer;
+            height: auto !important; /* ให้กล่องขยายความสูงตามเนื้อหาด้านใน */
+        }
+        .fc-daygrid-event {
+            white-space: normal !important;
+            align-items: stretch !important;
+        }
+        .custom-event-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 6px;
+            word-break: break-word;
+        }
+        .custom-event-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11.5px;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            width: max-content;
+            max-width: 100%;
+        }
+        .custom-event-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+            line-height: 1.3;
+        }
+        .custom-event-user {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            line-height: 1.2;
+        }
+        .fc-daygrid-event-dot { display: none !important; }
+        .fc-event-main { padding: 0 !important; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #e2e8f0; padding: 15px; flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+            .sidebar > div:first-child { margin-bottom: 0 !important; }
+            nav { display: flex; gap: 5px; width: 100%; margin-top: 15px; overflow-x: auto; padding-bottom: 5px; }
+            .nav-btn { margin-bottom: 0; white-space: nowrap; padding: 10px 14px; }
+            .content-area { padding: 20px; }
+            #user-identity { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="fixed inset-0 bg-slate-50 z-[100] flex items-center justify-center">
+        <div class="bg-white p-10 rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] max-w-sm w-full text-center border border-slate-200 mx-4">
+            <div class="w-20 h-20 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-6 text-orange-600">
+                <i data-lucide="monitor-smartphone" class="w-10 h-10"></i>
+            </div>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">OSDA System</h2>
+            <p class="text-sm text-slate-500 mb-8 font-medium">ระบบยืม-คืนอุปกรณ์<br><span class="text-red-500">* อนุญาตเฉพาะอีเมล @kmitl.ac.th</span></p>
+            
+            <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
+                เข้าสู่ระบบด้วย Google
+            </button>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="flex items-center gap-3 mb-10">
+            <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+                <i data-lucide="monitor-smartphone"></i>
+            </div>
+            <div>
+                <h1 class="font-black text-slate-800 text-lg leading-tight">OSDA System</h1>
+                <p class="text-xs font-bold text-orange-500 uppercase tracking-wider">User Portal</p>
+            </div>
+        </div>
+
+        <!-- User Identity Display -->
+        <div id="user-identity" class="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-100 text-center w-full">
+            <div class="w-16 h-16 rounded-full mx-auto mb-3 bg-slate-200 overflow-hidden border-2 border-white shadow-sm">
+                <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=random" class="w-full h-full object-cover">
+            </div>
+            <h3 id="user-display-name" class="font-bold text-slate-800 text-sm truncate">กำลังโหลด...</h3>
+            <p id="user-email" class="text-[10px] text-slate-500 truncate">-</p>
+            <button onclick="logout()" class="mt-3 text-xs bg-red-50 text-red-500 px-3 py-1.5 rounded-lg font-bold hover:bg-red-500 hover:text-white transition-colors w-full">ออกจากระบบ</button>
+        </div>
+
+        <nav class="flex-grow">
+            <div class="nav-btn active" onclick="switchTab('dashboard', this)">
+                <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                <span>ยืมอุปกรณ์</span>
+            </div>
+            <div class="nav-btn" onclick="switchTab('my-requests', this)">
+                <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+                <span>รายการของฉัน</span>
+            </div>
+            <div class="nav-btn" onclick="switchTab('calendar-view', this)">
+                <i data-lucide="calendar" class="w-5 h-5"></i>
+                <span>ปฏิทินคิวอุปกรณ์</span>
+            </div>
+        </nav>
+        
+        <div id="connection-status" class="mt-4 flex items-center gap-2 text-xs font-bold text-slate-400 w-full justify-center lg:justify-start">
+            <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span> กำลังเชื่อมต่อ...
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-area">
+        
+        <!-- Tab 1: Dashboard (Assets) -->
+        <div id="tab-dashboard" class="tab-content block">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800">อุปกรณ์ที่สามารถยืมได้</h2>
+                    <p class="text-slate-500 mt-1">เลือกระบุเวลาและจองอุปกรณ์ล่วงหน้า</p>
+                </div>
+                <!-- ระบบค้นหาอุปกรณ์ -->
+                <div class="relative w-full md:w-64">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"></i>
+                    <input type="text" id="search-input" oninput="filterAssets(this.value)" placeholder="ค้นหาอุปกรณ์..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm">
+                </div>
+            </div>
+            <div id="assets-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <p class="text-slate-400 col-span-full py-10 text-center font-bold">กำลังโหลดอุปกรณ์แบบ Real-time...</p>
+            </div>
+        </div>
+
+        <!-- Tab 2: My Requests -->
+        <div id="tab-my-requests" class="tab-content hidden">
+            <div class="mb-8">
+                <h2 class="text-2xl font-black text-slate-800">รายการยืมของฉัน</h2>
+                <p class="text-slate-500 mt-1">ติดตามสถานะการจอง ถ่ายรูปยืนยันเมื่อรับอุปกรณ์</p>
+            </div>
+            <div class="card">
+                <div id="my-requests-list" class="space-y-4">
+                    <p class="text-slate-400 py-10 text-center font-bold">กำลังตรวจสอบประวัติ...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Calendar -->
+        <div id="tab-calendar-view" class="tab-content hidden">
+            <div class="mb-8">
+                <h2 class="text-2xl font-black text-slate-800">ปฏิทินคิวอุปกรณ์</h2>
+                <p class="text-slate-500 mt-1">ตรวจสอบคิวเพื่อหลีกเลี่ยงการจองชนกัน</p>
+            </div>
+            <div class="card p-2 md:p-6">
+                <div id="calendar" class="min-h-[500px]"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="booking-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-black text-slate-800">ระบุเวลาการยืม</h3>
+                <button onclick="closeModal('booking-modal')" class="text-slate-400 hover:text-red-500"><i data-lucide="x"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div id="selected-asset-info" class="p-4 bg-orange-50 rounded-xl mb-4 border border-orange-100"></div>
+                <input type="hidden" id="booking-asset-id">
+                
+                <!-- ช่องกรอกเบอร์โทรศัพท์ -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">เบอร์โทรศัพท์ติดต่อ <span class="text-red-500">*</span></label>
+                    <input type="tel" id="book-phone" class="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100" placeholder="08x-xxx-xxxx" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">เวลารับของ (08:00 - 17:00)</label>
+                    <input type="text" id="book-start" class="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100 bg-white placeholder-slate-400 cursor-pointer" placeholder="เลือกวัน-เวลารับของ">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">เวลาคืนของ (08:00 - 17:00)</label>
+                    <input type="text" id="book-end" class="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100 bg-white placeholder-slate-400 cursor-pointer" placeholder="เลือกวัน-เวลาคืนของ">
+                </div>
+                <p class="text-[10px] text-red-500 font-bold">* ให้บริการเฉพาะเวลา 08:00 น. ถึง 17:00 น. เท่านั้น</p>
+                
+                <button onclick="submitBooking(this)" class="btn-primary mt-4">
+                    <div class="loader"></div>
+                    <span>ยืนยันการจอง</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Detail Modal -->
+    <div id="event-detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-black text-slate-800">รายละเอียดคิว</h3>
+                <button onclick="closeModal('event-detail-modal')" class="text-slate-400 hover:text-red-500"><i data-lucide="x"></i></button>
+            </div>
+            <div id="event-detail-content" class="space-y-4"></div>
+            <button onclick="closeModal('event-detail-modal')" class="w-full mt-6 bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">ปิดหน้าต่าง</button>
+        </div>
+    </div>
+
+    <!-- Camera Confirmation Modal -->
+    <div id="camera-modal" class="modal">
+        <div class="modal-content text-center">
+            <h3 class="text-xl font-black text-slate-800 mb-2">ถ่ายรูปยืนยันรับอุปกรณ์</h3>
+            <p class="text-xs text-slate-500 mb-4">ถ่ายรูปคุณคู่กับอุปกรณ์ หรืออัปโหลดรูปภาพเพื่อยืนยัน</p>
+            
+            <div class="w-full bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl overflow-hidden mb-4 relative aspect-[3/4] md:aspect-video flex flex-col items-center justify-center p-4 hover:bg-slate-100 transition-colors">
+                <!-- Preview Image -->
+                <img id="camera-preview-img" class="w-full h-full object-cover hidden absolute inset-0 z-10 rounded-xl">
+                
+                <!-- UI อัปโหลด/ถ่ายรูป -->
+                <div id="camera-ui-prompt" class="z-0 flex flex-col items-center">
+                    <i data-lucide="camera" class="w-10 h-10 text-slate-400 mb-2"></i>
+                    <span class="text-sm font-bold text-slate-500">คลิกเพื่อเปิดกล้อง / เลือกรูปภาพ</span>
+                </div>
+                
+                <!-- File Input ซ่อนไว้แต่กดได้เต็มกรอบ -->
+                <input type="file" id="camera-file-input" accept="image/*" capture="environment" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" onchange="handleFallbackImage(this)">
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="closeCameraModal()" class="flex-1 bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">ยกเลิก</button>
+                <button onclick="takePhoto(this)" class="flex-1 bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 flex justify-center items-center gap-2 transition-colors">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i> ยืนยันการรับ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ==========================================
+        // 🔧 ตั้งค่า FIREBASE ของคุณ
+        // ==========================================
+        const myFirebaseConfig = {
+            apiKey: "AIzaSyDJR7Krbe6cMBfQr2HkVshpE8JgxnPzBcQ",
+            authDomain: "osda-system.firebaseapp.com",
+            projectId: "osda-system",
+            storageBucket: "osda-system.firebasestorage.app",
+            messagingSenderId: "207457868371",
+            appId: "1:207457868371:web:8fa412794c6f52171b84a6",
+            measurementId: "G-G8DZNHYQM4"
+        };
+        const myAppId = typeof __app_id !== 'undefined' ? __app_id : "osda-system-app";
+
+        const isCanvasEnv = typeof __firebase_config !== 'undefined' && __firebase_config;
+        const firebaseConfig = isCanvasEnv ? JSON.parse(__firebase_config) : myFirebaseConfig;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : myAppId;
+
+        // Initialize Firebase
+        let app, auth, db, user;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (e) {
+            console.error("Firebase Init Error:", e);
+        }
+
+        let assets = [];
+        let bookings = [];
+        let calendar = null;
+        let currentSearchQuery = '';
+
+        // ตัวแปรเก็บ Instance ปฏิทิน
+        let fpStart = null;
+        let fpEnd = null;
+
+        // ฟังก์ชันแปลงรูปแบบเวลาเป็น วัน-เดือน-ปี ชั่วโมง:นาที น.
+        function formatThaiDateTime(dateStr) {
+            if (!dateStr) return '-';
+            if (dateStr.includes(' น.')) return dateStr.replace(' น.', '&nbsp;น.');
+            try {
+                const dateObj = new Date(dateStr);
+                if (isNaN(dateObj)) return dateStr;
+                
+                const day = String(dateObj.getDate()).padStart(2, '0');
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const year = dateObj.getFullYear();
+                const hours = String(dateObj.getHours()).padStart(2, '0');
+                const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                
+                return `${day}-${month}-${year} ${hours}:${minutes}&nbsp;น.`;
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ hd: 'kmitl.ac.th' }); // อนุญาตเฉพาะ kmitl
+
+        // เชื่อมต่อระบบ
+        async function initAuth() {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                try {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } catch (e) {
+                    console.error("Token error:", e);
+                }
+            }
+        }
+
+        onAuthStateChanged(auth, (u) => {
+            if (u) {
+                const isCanvasToken = typeof __initial_auth_token !== 'undefined' && __initial_auth_token;
+                if (!isCanvasToken && u.email && !u.email.endsWith('@kmitl.ac.th')) {
+                    signOut(auth);
+                    showToast('เข้าสู่ระบบล้มเหลว: อนุญาตเฉพาะอีเมล @kmitl.ac.th', 'error');
+                    return;
+                }
+
+                user = u;
+                document.getElementById('login-screen').classList.add('hidden'); 
+                document.getElementById('connection-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-green-500"></span> เชื่อมต่อฐานข้อมูลสำเร็จ`;
+                
+                document.getElementById('user-display-name').innerText = u.displayName || 'ผู้ใช้งานระบบ';
+                document.getElementById('user-email').innerText = u.email || 'โหมดทดสอบ';
+                if (u.photoURL) document.getElementById('user-avatar').src = u.photoURL;
+
+                subscribeToData();
+            } else {
+                user = null;
+                document.getElementById('login-screen').classList.remove('hidden');
+            }
+        });
+
+        window.loginWithGoogle = async () => {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error(error);
+                let errMsg = 'ยกเลิกการเข้าสู่ระบบ';
+                if (error.code === 'auth/configuration-not-found' || error.code === 'auth/operation-not-allowed') {
+                    errMsg = "กรุณาเปิดใช้งาน 'Google' Login ใน Firebase Console";
+                }
+                showToast(errMsg, 'error');
+            }
+        };
+
+        window.logout = () => { signOut(auth); };
+
+        function subscribeToData() {
+            if (!user) return;
+            if(window.lucide) lucide.createIcons();
+            
+            const assetsRef = collection(db, 'artifacts', appId, 'public', 'data', 'assets');
+            const bookingsRef = collection(db, 'artifacts', appId, 'public', 'data', 'bookings');
+
+            onSnapshot(assetsRef, (snapshot) => {
+                assets = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAssets(currentSearchQuery);
+                if (calendar) updateCalendarEvents();
+            }, (error) => console.error("Assets error:", error));
+
+            onSnapshot(bookingsRef, (snapshot) => {
+                bookings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAssets(currentSearchQuery);
+                renderMyRequests();
+                if (calendar) updateCalendarEvents();
+            }, (error) => console.error("Bookings error:", error));
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            if (tabId === 'calendar-view') {
+                // หน่วงเวลาเล็กน้อยเพื่อให้ DOM ปรับโครงสร้างเสร็จก่อนที่ปฏิทินจะพยายามคำนวณความสูง
+                setTimeout(() => {
+                    if (!calendar) initCalendar();
+                    else calendar.render();
+                }, 100);
+            }
+        }
+
+        // ฟังก์ชันสำหรับเปิด-ปิด Modal
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // --- ระบบค้นหา ---
+        window.filterAssets = function(query) {
+            currentSearchQuery = query;
+            renderAssets(query);
+        }
+
+        function renderAssets(searchQuery = '') {
+            const grid = document.getElementById('assets-grid');
+            
+            // กรองข้อมูลจากชื่อหรือรายละเอียด
+            const filteredAssets = assets.filter(a => {
+                const term = searchQuery.toLowerCase();
+                return a.name.toLowerCase().includes(term) || (a.desc && a.desc.toLowerCase().includes(term));
+            });
+
+            grid.innerHTML = filteredAssets.map(a => {
+                const isUnavailable = bookings.some(b => b.assetId === a.id && ['pending', 'approved', 'borrowed'].includes(b.status));
+
+                if (isUnavailable) {
+                    return `
+                    <div class="card flex flex-col border border-slate-100 opacity-70">
+                        <div class="h-32 bg-slate-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center relative">
+                            <div class="absolute top-2 right-2 bg-red-500 text-white text-[10px] px-2 py-1 rounded-md font-bold z-10 shadow-sm">ถูกยืมแล้ว</div>
+                            ${a.image ? `<img src="${a.image}" class="w-full h-full object-cover grayscale">` : `<i data-lucide="image" class="w-8 h-8 text-slate-300"></i>`}
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-lg leading-tight mb-1">${a.name}</h3>
+                        <p class="text-xs text-slate-400 font-medium mb-4 flex-grow">${a.desc}</p>
+                        <button class="bg-slate-100 text-slate-400 font-bold py-2 rounded-lg text-sm cursor-not-allowed" disabled>ไม่สามารถยืมได้</button>
+                    </div>`;
+                } else {
+                    return `
+                    <div class="card flex flex-col hover:border-orange-200 transition-colors cursor-pointer shadow-sm hover:shadow-md" onclick="openBookingModal('${a.id}')">
+                        <div class="h-32 bg-slate-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center relative">
+                            <div class="absolute top-2 right-2 bg-green-500 text-white text-[10px] px-2 py-1 rounded-md font-bold z-10 shadow-sm">ว่าง</div>
+                            ${a.image ? `<img src="${a.image}" class="w-full h-full object-cover">` : `<i data-lucide="image" class="w-8 h-8 text-slate-300"></i>`}
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-lg leading-tight mb-1">${a.name}</h3>
+                        <p class="text-xs text-slate-400 font-medium mb-4 flex-grow line-clamp-2">${a.desc}</p>
+                        <button class="bg-orange-50 text-orange-600 font-bold py-2 rounded-lg text-sm hover:bg-orange-600 hover:text-white transition-colors">ยืมอุปกรณ์นี้</button>
+                    </div>`;
+                }
+            }).join('') || '<p class="text-slate-400 col-span-full py-10 text-center font-bold">ไม่พบอุปกรณ์ที่ค้นหา</p>';
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function openBookingModal(assetId) {
+            if(!user) return showToast('กรุณาเข้าสู่ระบบก่อนทำรายการ', 'error');
+            const asset = assets.find(a => a.id === assetId);
+            if(!asset) return;
+            
+            document.getElementById('booking-asset-id').value = assetId;
+            document.getElementById('selected-asset-info').innerHTML = `
+                <p class="text-xs text-orange-600 font-bold uppercase tracking-wider mb-1">อุปกรณ์ที่เลือก</p>
+                <p class="font-black text-slate-800 text-lg">${asset.name}</p>
+            `;
+            
+            document.getElementById('book-phone').value = '';
+            
+            if (!fpStart) {
+                const fpOptions = {
+                    enableTime: true,
+                    dateFormat: "Y-m-d\\TH:i",
+                    altInput: true,
+                    altFormat: "d-m-Y เวลา H:i น.",
+                    locale: "th",
+                    minTime: "08:00",
+                    maxTime: "17:00",
+                    time_24hr: true,
+                    disableMobile: true,
+                    onReady: function(selectedDates, dateStr, instance) {
+                        if (instance.timeContainer) {
+                            const timeLabel = document.createElement('div');
+                            timeLabel.innerHTML = '🕒 กำหนดเวลารับ/คืน';
+                            timeLabel.className = 'text-xs font-bold text-slate-500 text-center pt-2 pb-1 border-t border-slate-100';
+                            instance.timeContainer.insertBefore(timeLabel, instance.timeContainer.firstChild);
+                        }
+                        
+                        const btnContainer = document.createElement('div');
+                        btnContainer.className = 'p-2 border-t border-slate-100 mt-1';
+                        
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'w-full bg-orange-500 text-white font-bold py-2 rounded-lg hover:bg-orange-600 transition-colors shadow-sm text-sm';
+                        btn.innerText = 'ตกลง (OK)';
+                        btn.onclick = function() { instance.close(); };
+                        
+                        btnContainer.appendChild(btn);
+                        instance.calendarContainer.appendChild(btnContainer);
+                    }
+                };
+                fpStart = flatpickr("#book-start", fpOptions);
+                fpEnd = flatpickr("#book-end", fpOptions);
+            }
+            
+            fpStart.clear();
+            fpEnd.clear();
+            
+            openModal('booking-modal');
+        }
+
+        function validateTime(input) {
+            if(!input.value) return;
+            const date = new Date(input.value);
+            const hours = date.getHours();
+            if(hours < 8 || hours >= 17) {
+                showToast('กรุณาเลือกเวลาในช่วง 08:00 ถึง 17:00 เท่านั้น', 'error');
+                input.value = '';
+            }
+        }
+
+        async function submitBooking(btn) {
+            const assetId = document.getElementById('booking-asset-id').value;
+            const phone = document.getElementById('book-phone').value.trim();
+            const start = document.getElementById('book-start').value;
+            const end = document.getElementById('book-end').value;
+            
+            if(!user) return showToast('กรุณาเข้าสู่ระบบก่อนทำรายการ', 'error');
+            const username = user.displayName || 'ผู้ใช้งานไม่ระบุชื่อ';
+            const userId = user.uid;
+
+            if (!phone) return showToast('กรุณากรอกเบอร์โทรศัพท์ติดต่อ', 'error');
+            if (!start || !end) return showToast('กรุณาระบุเวลาให้ครบถ้วน', 'error');
+            
+            const dStart = new Date(start);
+            const dEnd = new Date(end);
+            
+            if (dStart >= dEnd) return showToast('เวลาคืนของต้องอยู่หลังเวลารับของ', 'error');
+            if (dStart.getHours() < 8 || dStart.getHours() >= 17 || dEnd.getHours() < 8 || dEnd.getHours() >= 17) {
+                return showToast('ให้บริการเฉพาะเวลา 08:00 ถึง 17:00 น. เท่านั้น', 'error');
+            }
+
+            btn.classList.add('btn-loading');
+            btn.querySelector('.loader').style.display = 'block';
+            btn.querySelector('span').innerText = 'กำลังส่งคำขอ...';
+
+            try {
+                const newId = 'BKG-' + Date.now();
+                const newBooking = { 
+                    assetId, 
+                    user: username, 
+                    userId: userId, 
+                    phone: phone, 
+                    start, 
+                    end, 
+                    status: 'pending', 
+                    createdAt: new Date().toISOString() 
+                };
+                
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', newId), newBooking);
+                
+                closeModal('booking-modal');
+                showToast('ส่งคำขอยืมสำเร็จ รอเจ้าหน้าที่อนุมัติ');
+            } catch(error) {
+                console.error("Booking error:", error);
+                showToast('ส่งคำขอไม่สำเร็จ ลองอีกครั้ง', 'error');
+            }
+
+            btn.classList.remove('btn-loading');
+            btn.querySelector('.loader').style.display = 'none';
+            btn.querySelector('span').innerText = 'ยืนยันการจอง';
+        }
+
+        const statusConfig = {
+            'pending': { color: 'bg-yellow-100 text-yellow-700', label: 'รออนุมัติ' }, 
+            'approved': { color: 'bg-blue-100 text-blue-700', label: 'รอรับอุปกรณ์' },
+            'borrowed': { color: 'bg-indigo-100 text-indigo-700', label: 'กำลังยืม' }, 
+            'returned': { color: 'bg-green-100 text-green-700', label: 'คืนแล้ว' }, 
+            'rejected': { color: 'bg-red-100 text-red-700', label: 'ถูกปฏิเสธ' }
+        };
+
+        function renderMyRequests() {
+            const list = document.getElementById('my-requests-list');
+            const myBookings = bookings.filter(b => b.userId === user?.uid).sort((a,b) => new Date(b.start) - new Date(a.start));
+
+            list.innerHTML = myBookings.map(b => {
+                const asset = assets.find(a => a.id === b.assetId);
+                const st = statusConfig[b.status] || { color: 'bg-slate-100', label: b.status };
+                
+                let actionBtn = '';
+                if(b.status === 'approved') {
+                    actionBtn = `<button onclick="openCameraModal('${b.id}')" class="mt-3 w-full bg-green-500 text-white font-bold py-2 rounded-lg text-xs hover:bg-green-600 transition-colors flex items-center justify-center gap-1 shadow-sm"><i data-lucide="camera" class="w-4 h-4"></i> ยืนยันรับอุปกรณ์ (ถ่าย/อัปโหลดรูป)</button>`;
+                }
+
+                return `
+                <div class="p-4 border border-slate-100 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-50 gap-4">
+                    <div class="flex items-center gap-4 w-full">
+                        <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center border border-slate-200 flex-shrink-0">
+                            ${asset?.image ? `<img src="${asset.image}" class="w-full h-full object-cover rounded-lg">` : `<i data-lucide="package" class="w-6 h-6 text-slate-400"></i>`}
+                        </div>
+                        <div class="flex-grow">
+                            <h5 class="font-black text-slate-800 leading-tight">${asset?.name || 'อุปกรณ์ถูกลบ'}</h5>
+                            <p class="text-[11px] font-bold text-slate-400 font-mono mt-1">รับ: ${formatThaiDateTime(b.start)} <br> คืน: ${formatThaiDateTime(b.end)}</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end w-full md:w-auto shrink-0">
+                        <span class="status-badge px-3 py-1 ${st.color}">${st.label}</span>
+                        ${actionBtn}
+                    </div>
+                </div>`;
+            }).join('') || '<p class="py-10 text-slate-400 font-bold text-center">คุณยังไม่มีรายการทำจอง</p>';
+            if(window.lucide) lucide.createIcons();
+        }
+
+        // ==========================================
+        // ระบบถ่ายรูปยืนยัน (Native Mobile Camera & Upload)
+        // ==========================================
+        let currentCapturedImage = null;
+        let confirmBookingId = null;
+
+        window.openCameraModal = function(bookingId) {
+            confirmBookingId = bookingId;
+            currentCapturedImage = null;
+            document.getElementById('camera-file-input').value = ""; 
+
+            document.getElementById('camera-preview-img').src = '';
+            document.getElementById('camera-preview-img').classList.add('hidden');
+            document.getElementById('camera-ui-prompt').classList.remove('hidden');
+
+            openModal('camera-modal');
+        }
+
+        window.closeCameraModal = function() {
+            closeModal('camera-modal');
+            currentCapturedImage = null;
+        }
+
+        window.handleFallbackImage = function(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800;
+                        const scale = img.width > MAX_WIDTH ? MAX_WIDTH / img.width : 1;
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        
+                        currentCapturedImage = canvas.toDataURL('image/jpeg', 0.7);
+                        
+                        document.getElementById('camera-preview-img').src = currentCapturedImage;
+                        document.getElementById('camera-preview-img').classList.remove('hidden');
+                        document.getElementById('camera-ui-prompt').classList.add('hidden');
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        window.takePhoto = async function(btn) {
+            if(!currentCapturedImage) return showToast('กรุณาคลิกที่กรอบเพื่อเลือกรูปภาพก่อน', 'error');
+
+            btn.classList.add('btn-loading');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<div class="loader" style="display:block"></div> <span class="ml-2">กำลังส่งรูป...</span>';
+
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', confirmBookingId), {
+                    status: 'borrowed',
+                    confirmationImage: currentCapturedImage,
+                    receiveDate: formatThaiDateTime(new Date().toISOString())
+                });
+                showToast('ยืนยันรับอุปกรณ์สำเร็จ! (สถานะ: กำลังยืม)');
+                closeCameraModal();
+            } catch(e) {
+                console.error(e);
+                showToast('เกิดข้อผิดพลาดในการยืนยัน', 'error');
+            }
+
+            btn.classList.remove('btn-loading');
+            btn.innerHTML = originalText;
+        }
+
+        function getCalendarEvents() {
+            return bookings.map(b => {
+                const assetName = assets.find(a => a.id === b.assetId)?.name || 'Unknown';
+                
+                // กำหนดสีพื้นหลังให้ตรงกับสถานะ
+                let bgColor = '#f59e0b'; // pending (รออนุมัติ - สีเหลือง)
+                if (b.status === 'approved') bgColor = '#0ea5e9'; // approved (รอรับของ - สีฟ้า)
+                if (b.status === 'borrowed') bgColor = '#4f46e5'; // borrowed (กำลังยืม - สีคราม)
+                if (b.status === 'returned') bgColor = '#10b981'; // returned (คืนแล้ว - สีเขียว)
+                if (b.status === 'rejected') bgColor = '#ef4444'; // rejected (ปฏิเสธ - สีแดง)
+
+                return {
+                    id: b.id, 
+                    title: `${assetName} (${b.user})`,
+                    start: b.start, 
+                    end: b.end,
+                    backgroundColor: bgColor,
+                    borderColor: 'transparent',
+                    extendedProps: {
+                        statusLabel: statusConfig[b.status]?.label || b.status,
+                        assetName: assetName,
+                        userName: b.user
+                    }
+                };
+            });
+        }
+
+        function initCalendar() {
+            calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+                initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth', locale: 'th',
+                events: getCalendarEvents(),
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listMonth' },
+                eventDisplay: 'block',
+                displayEventTime: false,
+                eventClick: function(info) { showEventDetails(info.event.id); },
+                eventContent: function(arg) {
+                    const statusLabelText = arg.event.extendedProps.statusLabel;
+                    const assetName = arg.event.extendedProps.assetName;
+                    const userName = arg.event.extendedProps.userName;
+
+                    return {
+                        html: `
+                            <div class="custom-event-content">
+                                <span class="custom-event-badge">${statusLabelText}</span>
+                                <span class="custom-event-title">${assetName}</span>
+                                <span class="custom-event-user">👤 ${userName}</span>
+                            </div>
+                        `
+                    };
+                }
+            });
+            calendar.render();
+        }
+
+        function showEventDetails(bookingId) {
+            const b = bookings.find(x => x.id === bookingId);
+            if (!b) return;
+            const a = assets.find(x => x.id === b.assetId);
+            const st = statusConfig[b.status] || { color: 'bg-slate-100', label: b.status };
+
+            const photoHTML = b.confirmationImage 
+                ? `<div class="col-span-2 mt-2"><p class="text-[10px] font-bold text-slate-400 uppercase mb-2">รูปถ่ายยืนยันรับอุปกรณ์</p><img src="${b.confirmationImage}" class="w-full rounded-xl border border-slate-200"></div>`
+                : '';
+
+            // ถอดส่วนการแสดงเบอร์โทรศัพท์ (b.phone) ออกจากฝั่งผู้ใช้งานเพื่อความเป็นส่วนตัว
+            const content = `
+                <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 mb-2">
+                    <p class="text-[10px] font-bold text-orange-600 uppercase tracking-wider mb-1">อุปกรณ์</p>
+                    <p class="font-black text-lg text-slate-800">${a ? a.name : 'ไม่พบข้อมูลอุปกรณ์'}</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">ผู้ยืม</p>
+                        <p class="font-black text-slate-800 text-base leading-normal break-words">${b.user}</p>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col justify-center items-start">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">สถานะ</p>
+                        <span class="px-3 py-1.5 rounded-full text-sm font-black uppercase ${st.color} inline-block">${st.label}</span>
+                    </div>
+                    <div class="col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                            <p class="text-[10px] font-bold text-indigo-400 uppercase mb-1">เวลารับของ</p>
+                            <p class="font-mono text-sm font-black text-indigo-800 whitespace-nowrap"><i data-lucide="calendar-clock" class="w-4 h-4 inline mb-0.5"></i> ${formatThaiDateTime(b.start)}</p>
+                        </div>
+                        <div class="p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                            <p class="text-[10px] font-bold text-indigo-400 uppercase mb-1">เวลาคืนของ</p>
+                            <p class="font-mono text-sm font-black text-indigo-800 whitespace-nowrap"><i data-lucide="calendar-check" class="w-4 h-4 inline mb-0.5"></i> ${formatThaiDateTime(b.end)}</p>
+                        </div>
+                    </div>
+                    ${photoHTML}
+                </div>
+            `;
+            document.getElementById('event-detail-content').innerHTML = content;
+            openModal('event-detail-modal');
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function updateCalendarEvents() {
+            if (!calendar) return;
+            const eventSource = calendar.getEventSources()[0];
+            if(eventSource) eventSource.remove();
+            calendar.addEventSource(getCalendarEvents());
+        }
+
+        // --- Export Functions for HTML inline usage ---
+        window.switchTab = switchTab;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.openBookingModal = openBookingModal;
+        window.validateTime = validateTime;
+        window.submitBooking = submitBooking;
+
+        initAuth();
+
+    </script>
+</body>
+</html>
