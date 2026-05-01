@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OSDA Smart Asset Management - ระบบหลังบ้าน (Firebase)</title>
+    <title>OSDA Smart Asset Management - ระบบหลังบ้าน</title>
     
     <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
@@ -20,12 +20,12 @@
         .nav-btn:hover { background: #f1f5f9; color: #0f172a; }
         .nav-btn.active { background: var(--kmitl); color: white; box-shadow: 0 4px 12px rgba(255, 102, 0, 0.2); }
         
-        .content-area { flex-grow: 1; padding: 40px; overflow-y: auto; }
+        .content-area { flex-grow: 1; padding: 40px; overflow-y: auto; position: relative; }
         .card { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
         
         .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 60; align-items: center; justify-content: center; padding: 16px; }
         .modal.active { display: flex; }
-        .modal-content { background: white; border-radius: 24px; width: 100%; max-width: 500px; padding: 32px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: white; border-radius: 24px; width: 100%; max-width: 550px; padding: 32px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); max-height: 90vh; overflow-y: auto; }
 
         .btn-primary { background: var(--kmitl); color: white; padding: 10px 20px; border-radius: 10px; font-weight: 700; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn-primary:hover { background: #e65c00; transform: translateY(-1px); }
@@ -48,21 +48,20 @@
             border: none !important;
             border-radius: 8px !important;
             margin-bottom: 4px !important;
-            overflow: hidden;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             cursor: pointer;
+            height: auto !important;
         }
         .fc-daygrid-event {
             white-space: normal !important;
-            align-items: normal !important;
+            align-items: stretch !important;
         }
         .custom-event-content {
             display: flex;
             flex-direction: column;
             gap: 4px;
             padding: 6px;
-            white-space: normal !important;
-            word-wrap: break-word;
+            word-break: break-word;
         }
         .custom-event-badge {
             display: inline-block;
@@ -73,6 +72,7 @@
             background: rgba(255, 255, 255, 0.25);
             color: #ffffff;
             width: max-content;
+            max-width: 100%;
         }
         .custom-event-title {
             font-size: 13px;
@@ -86,35 +86,70 @@
             font-weight: 500;
             line-height: 1.2;
         }
-        .fc-daygrid-event-dot {
-            display: none !important;
-        }
-        .fc-event-main {
-            padding: 0 !important;
-        }
+        .fc-daygrid-event-dot { display: none !important; }
+        .fc-event-main { padding: 0 !important; }
 
+        /* ====== Mobile UI Optimizations ====== */
         @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #e2e8f0; padding: 15px; flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-            .sidebar > div:first-child { margin-bottom: 0 !important; }
-            nav { display: flex; gap: 5px; width: 100%; margin-top: 15px; overflow-x: auto; padding-bottom: 5px; }
-            .nav-btn { margin-bottom: 0; white-space: nowrap; padding: 10px 14px; }
-            .content-area { padding: 20px; }
-            .hide-on-mobile { display: none; }
+            body { display: block; overflow-y: auto; background-color: #f8fafc; }
+            .sidebar { 
+                position: fixed; top: 0; left: 0; right: 0; width: 100%; height: 70px;
+                padding: 10px 20px; border-bottom: 1px solid #e2e8f0; 
+                flex-direction: row !important; align-items: center !important; justify-content: space-between !important;
+                z-index: 40; background: white;
+            }
+            #connection-status, #admin-info-desktop { display: none !important; }
+            .content-area { padding: 90px 15px 90px 15px; height: auto; overflow: visible; }
+            
+            nav { 
+                position: fixed; bottom: 0; left: 0; right: 0; width: 100%; 
+                background: white; border-top: 1px solid #e2e8f0; z-index: 50; 
+                display: flex !important; flex-direction: row !important; justify-content: space-around !important; 
+                padding: 10px 5px; margin-top: 0;
+                padding-bottom: calc(10px + env(safe-area-inset-bottom));
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            }
+            .nav-btn { flex-direction: column !important; padding: 5px !important; width: 25%; text-align: center; margin-bottom: 0 !important; }
+            .nav-btn span { font-size: 10px; margin-top: 4px; display: block;}
+            .nav-btn.active { background: transparent !important; color: var(--kmitl) !important; box-shadow: none !important; }
+            .nav-btn i { margin: 0 auto; color: #94a3b8; }
+            .nav-btn.active i { color: var(--kmitl); }
+            
+            .modal { align-items: flex-end; padding: 0; }
+            .modal-content { 
+                max-height: 85vh; padding: 20px; 
+                border-radius: 24px 24px 0 0 !important;
+                animation: slideUp 0.3s ease-out; margin: 0; max-width: 100%;
+            }
+            @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+            /* Responsive Tables to Cards for Admin */
+            table, thead, tbody, th, td, tr { display: block; width: 100%; }
+            thead tr { display: none; }
+            table { min-width: 100% !important; border: none !important; }
+            tr { border: 1px solid #e2e8f0; border-radius: 16px; margin-bottom: 16px; background: white; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+            td { display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; padding: 6px 0 !important; border: none !important; text-align: left; }
+            td::before { content: attr(data-label); font-weight: 800; color: #64748b; font-size: 10px; text-transform: uppercase; margin-bottom: 4px; display: block; width: 100%; }
+            td > div, td > p { text-align: left; margin: 0; width: 100%; justify-content: flex-start; }
+            td.flex { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px;}
+            .justify-end { justify-content: flex-start !important; }
+            .card.overflow-x-auto { padding: 0px; background: transparent; border: none; box-shadow: none;} 
+            tbody tr td:last-child { margin-top: 10px; padding-top: 15px !important; border-top: 1px dashed #e2e8f0 !important; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="flex items-center gap-3 mb-10">
+    <!-- Sidebar / Mobile Header -->
+    <div class="sidebar flex-row justify-between items-center md:flex-col md:items-start md:justify-start">
+        <div class="flex items-center gap-3 mb-0 md:mb-10 w-auto">
             <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
                 <i data-lucide="shield-check"></i>
             </div>
             <div>
-                <h1 class="font-black text-slate-800 text-lg leading-tight">OSDA Admin</h1>
-                <p class="text-xs font-bold text-orange-500 uppercase tracking-wider">Management</p>
+                <h1 class="font-black text-slate-800 text-lg leading-tight hidden md:block">OSDA Admin</h1>
+                <h1 class="font-black text-slate-800 text-lg leading-tight md:hidden">OSDA</h1>
+                <p class="text-xs font-bold text-orange-500 uppercase tracking-wider hidden md:block">Management</p>
             </div>
         </div>
 
@@ -125,7 +160,8 @@
             </div>
             <div class="nav-btn" onclick="switchTab('requests', this)">
                 <i data-lucide="bell" class="w-5 h-5"></i>
-                <span class="flex-grow">คำขอยืม</span>
+                <span class="flex-grow hidden md:inline">คำขอยืม</span>
+                <span class="md:hidden">คำขอ</span>
                 <span id="pending-count" class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full hidden">0</span>
             </div>
             <div class="nav-btn" onclick="switchTab('calendar-view', this)">
@@ -141,6 +177,22 @@
         <div id="connection-status" class="mt-4 flex items-center gap-2 text-xs font-bold text-slate-400 justify-center lg:justify-start">
             <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span> กำลังเชื่อมต่อ...
         </div>
+
+        <!-- Admin Info & Logout -->
+        <div class="mt-auto md:pt-6 md:border-t border-slate-100 flex items-center gap-3 md:bg-slate-50 md:p-3 md:rounded-xl">
+            <div class="w-8 h-8 rounded-full bg-slate-300 overflow-hidden hidden md:block">
+                <img id="admin-avatar" src="https://ui-avatars.com/api/?name=Admin&background=random" class="w-full h-full">
+            </div>
+            <div class="flex-grow overflow-hidden hidden md:block" id="admin-info-desktop">
+                <p class="text-xs font-bold text-slate-800 truncate" id="admin-name">Admin User</p>
+                <p class="text-[10px] text-slate-500 truncate" id="admin-email">admin@kmitl.ac.th</p>
+            </div>
+            <!-- Logout Button -->
+            <button onclick="logout()" class="text-red-500 bg-red-50 p-2 md:px-3 md:py-1.5 rounded-lg font-bold hover:bg-red-500 hover:text-white transition-colors w-auto" title="ออกจากระบบ">
+                <i data-lucide="log-out" class="w-5 h-5 md:hidden"></i>
+                <span class="hidden md:inline">ออกจากระบบ</span>
+            </button>
+        </div>
     </div>
 
     <!-- Main Content -->
@@ -148,7 +200,7 @@
         
         <!-- Tab 1: Assets -->
         <div id="tab-assets" class="tab-content block">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div>
                     <h2 class="text-2xl font-black text-slate-800">คลังอุปกรณ์</h2>
                     <p class="text-slate-500 mt-1">จัดการรายการอุปกรณ์ทั้งหมดในระบบ</p>
@@ -157,7 +209,7 @@
                     <!-- ระบบค้นหาอุปกรณ์ (Admin) -->
                     <div class="relative w-full sm:w-64">
                         <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"></i>
-                        <input type="text" oninput="filterAssets(this.value)" placeholder="ค้นหาอุปกรณ์..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm">
+                        <input type="text" oninput="filterAssets(this.value)" placeholder="ค้นหาอุปกรณ์..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm shadow-sm">
                     </div>
                     <button onclick="openModal('add-asset-modal')" class="btn-primary flex items-center gap-2 w-full sm:w-auto">
                         <i data-lucide="plus" class="w-4 h-4"></i> เพิ่มอุปกรณ์
@@ -171,11 +223,18 @@
 
         <!-- Tab 2: Requests -->
         <div id="tab-requests" class="tab-content hidden">
-            <div class="mb-8">
-                <h2 class="text-2xl font-black text-slate-800">จัดการคำขอยืม</h2>
-                <p class="text-slate-500 mt-1">อนุมัติและจัดการสถานะการยืม-คืนอุปกรณ์</p>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800">จัดการคำขอยืม</h2>
+                    <p class="text-slate-500 mt-1">อนุมัติและจัดการสถานะการยืม-คืนอุปกรณ์</p>
+                </div>
+                <!-- ระบบค้นหาคำขอยืม -->
+                <div class="relative w-full md:w-72">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"></i>
+                    <input type="text" oninput="filterRequests(this.value)" placeholder="ค้นหาผู้ยืม, อุปกรณ์, เบอร์โทร..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm shadow-sm">
+                </div>
             </div>
-            <div class="card overflow-x-auto p-0">
+            <div class="card overflow-x-auto">
                 <table class="w-full text-left min-w-[700px]">
                     <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider font-bold">
                         <tr>
@@ -195,33 +254,40 @@
 
         <!-- Tab 3: Calendar -->
         <div id="tab-calendar-view" class="tab-content hidden">
-            <div class="mb-8">
+            <div class="mb-6">
                 <h2 class="text-2xl font-black text-slate-800">ปฏิทินการยืม</h2>
                 <p class="text-slate-500 mt-1">ภาพรวมการใช้งานอุปกรณ์ทั้งหมด</p>
             </div>
             <div class="card p-2 md:p-6">
-                <div id="calendar" class="min-h-[500px]"></div>
+                <div id="calendar" class="min-h-[400px] md:min-h-[500px]"></div>
             </div>
         </div>
 
         <!-- Tab 4: History -->
         <div id="tab-history" class="tab-content hidden">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <div>
                     <h2 class="text-2xl font-black text-slate-800">ประวัติการทำรายการ</h2>
                     <p class="text-slate-500 mt-1">รายการยืม-คืนที่เสร็จสิ้นแล้วทั้งหมด</p>
                 </div>
-                <!-- ปุ่มล้างประวัติ -->
-                <button onclick="openModal('clear-history-modal')" class="bg-red-50 text-red-600 hover:bg-red-500 hover:text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i> ล้างประวัติทั้งหมด
-                </button>
+                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <!-- ระบบค้นหาประวัติ -->
+                    <div class="relative w-full sm:w-72">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"></i>
+                        <input type="text" oninput="filterHistory(this.value)" placeholder="ค้นหาผู้ยืม, อุปกรณ์, เบอร์โทร..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm shadow-sm">
+                    </div>
+                    <!-- ปุ่มล้างประวัติ -->
+                    <button onclick="openModal('clear-history-modal')" class="bg-red-50 text-red-600 hover:bg-red-500 hover:text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i> ล้างประวัติ
+                    </button>
+                </div>
             </div>
-            <div class="card overflow-x-auto p-0">
+            <div class="card overflow-x-auto">
                 <table class="w-full text-left min-w-[700px]">
                     <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider font-bold">
                         <tr>
                             <th class="p-4">อุปกรณ์</th>
-                            <th class="p-4">ผู้ยืม</th>
+                            <th class="p-4">ผู้ยืม / เบอร์ติดต่อ</th>
                             <th class="p-4">วันที่ยืม</th>
                             <th class="p-4">วันที่คืนจริง</th>
                             <th class="p-4">ผลลัพธ์</th>
@@ -298,7 +364,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ==========================================
@@ -382,8 +448,11 @@
             }
         });
 
+        window.logout = () => { signOut(auth); };
+
         function subscribeToData() {
             if (!user) return;
+            if(window.lucide) lucide.createIcons();
             
             const assetsRef = collection(db, 'artifacts', myAppId, 'public', 'data', 'assets');
             const bookingsRef = collection(db, 'artifacts', myAppId, 'public', 'data', 'bookings');
@@ -441,8 +510,10 @@
             btnElement.classList.add('active');
 
             if (tabId === 'calendar-view') {
-                if (!calendar) initCalendar();
-                else calendar.render(); 
+                setTimeout(() => {
+                    if (!calendar) initCalendar();
+                    else calendar.render(); 
+                }, 100);
             }
         }
 
@@ -477,7 +548,6 @@
                 const newId = 'AST-' + Date.now();
                 const newAsset = { name, desc, image: base64Image, createdAt: new Date().toISOString() };
                 
-                // บันทึกลง Firebase
                 await setDoc(doc(db, 'artifacts', myAppId, 'public', 'data', 'assets', newId), newAsset);
                 
                 closeModal('add-asset-modal');
@@ -511,7 +581,6 @@
             try {
                 const updateData = { status: newStatus };
                 if(newStatus === 'returned' || newStatus === 'rejected') {
-                    // บันทึกเวลาที่เปลี่ยนสถานะด้วยฟังก์ชัน formatThaiDateTime ทันที
                     updateData.returnDate = formatThaiDateTime(new Date().toISOString());
                 }
                 await updateDoc(doc(db, 'artifacts', myAppId, 'public', 'data', 'bookings', id), updateData);
@@ -522,7 +591,7 @@
             }
         }
 
-        // --- ระบบค้นหา ---
+        // --- ระบบค้นหา (อุปกรณ์) ---
         window.filterAssets = function(query) {
             currentSearchQuery = query;
             renderAssets(query);
@@ -548,7 +617,7 @@
                     <p class="text-xs text-slate-400 font-medium line-clamp-2">${a.desc}</p>
                 </div>
             `).join('') || '<p class="text-slate-400 col-span-full py-10 text-center font-bold">ไม่พบอุปกรณ์ที่ค้นหา</p>';
-            lucide.createIcons();
+            if(window.lucide) lucide.createIcons();
         }
 
         const statusConfig = {
@@ -559,7 +628,7 @@
             'rejected': { color: 'bg-red-100 text-red-700', label: 'ถูกปฏิเสธ' }
         };
 
-        // --- ระบบค้นหาสำหรับหน้าคำขอยืม ---
+        // --- ระบบค้นหา (คำขอยืม) ---
         window.filterRequests = function(query) {
             currentRequestsQuery = query;
             renderRequests();
@@ -569,7 +638,6 @@
             const table = document.getElementById('requests-table');
             let activeRequests = bookings.filter(b => ['pending', 'approved', 'borrowed'].includes(b.status));
             
-            // กรองข้อมูลการค้นหา
             if (currentRequestsQuery) {
                 const term = currentRequestsQuery.toLowerCase();
                 activeRequests = activeRequests.filter(b => {
@@ -599,28 +667,28 @@
 
                 return `
                 <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="p-4">
+                    <td class="p-4" data-label="อุปกรณ์">
                         <div class="font-bold text-slate-800 cursor-pointer hover:text-orange-500" onclick="showEventDetails('${b.id}')">${asset?.name || 'อุปกรณ์ถูกลบ'}</div>
                     </td>
-                    <td class="p-4">
+                    <td class="p-4" data-label="ผู้ยืม / ติดต่อ">
                         <p class="font-black text-slate-800 text-base">${b.user}</p>
                         <p class="text-sm font-bold text-orange-600 font-mono mt-1 flex items-center gap-1"><i data-lucide="phone" class="w-4 h-4"></i> ${b.phone || '-'}</p>
                     </td>
-                    <td class="p-4">
-                        <div class="bg-indigo-50 text-indigo-700 font-mono font-bold text-sm px-3 py-2 rounded-lg border border-indigo-100 inline-block">
+                    <td class="p-4" data-label="ช่วงเวลา">
+                        <div class="bg-indigo-50 text-indigo-700 font-mono font-bold text-sm px-3 py-2 rounded-lg border border-indigo-100 inline-block w-full md:w-auto">
                             <div class="mb-1"><span class="text-[10px] text-indigo-400 uppercase tracking-wider block leading-none">รับ:</span> ${formatThaiDateTime(b.start)}</div>
                             <div><span class="text-[10px] text-indigo-400 uppercase tracking-wider block leading-none">คืน:</span> ${formatThaiDateTime(b.end)}</div>
                         </div>
                     </td>
-                    <td class="p-4"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${conf.color}">${conf.label}</span></td>
-                    <td class="p-4 text-right flex gap-2 justify-end">${actionBtns}</td>
+                    <td class="p-4" data-label="สถานะ"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${conf.color}">${conf.label}</span></td>
+                    <td class="p-4 text-right flex gap-2 justify-end" data-label="การจัดการ">${actionBtns}</td>
                 </tr>
                 `;
             }).join('') || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">${currentRequestsQuery ? 'ไม่พบข้อมูลคำขอที่ค้นหา' : 'ไม่มีคำขอที่ต้องจัดการ'}</td></tr>`;
-            lucide.createIcons();
+            if(window.lucide) lucide.createIcons();
         }
 
-        // --- ระบบค้นหาสำหรับหน้าประวัติ ---
+        // --- ระบบค้นหา (ประวัติ) ---
         window.filterHistory = function(query) {
             currentHistoryQuery = query;
             renderHistory();
@@ -630,7 +698,6 @@
             const table = document.getElementById('history-table');
             let history = bookings.filter(b => ['returned', 'rejected'].includes(b.status));
             
-            // กรองข้อมูลการค้นหา
             if (currentHistoryQuery) {
                 const term = currentHistoryQuery.toLowerCase();
                 history = history.filter(b => {
@@ -647,20 +714,19 @@
                 const conf = statusConfig[b.status];
                 return `
                 <tr class="hover:bg-slate-50 cursor-pointer" onclick="showEventDetails('${b.id}')">
-                    <td class="p-4 font-bold text-slate-800">${asset?.name || 'อุปกรณ์ถูกลบ'}</td>
-                    <td class="p-4">
+                    <td class="p-4 font-bold text-slate-800" data-label="อุปกรณ์">${asset?.name || 'อุปกรณ์ถูกลบ'}</td>
+                    <td class="p-4" data-label="ผู้ยืม / ติดต่อ">
                         <p class="font-black text-slate-700 text-base">${b.user}</p>
                         <p class="text-sm font-bold text-orange-600 font-mono mt-1 flex items-center gap-1"><i data-lucide="phone" class="w-4 h-4"></i> ${b.phone || '-'}</p>
                     </td>
-                    <td class="p-4 text-sm font-bold text-slate-700 font-mono">${formatThaiDateTime(b.start)}</td>
-                    <td class="p-4 text-sm font-black text-blue-600 font-mono">${formatThaiDateTime(b.returnDate)}</td>
-                    <td class="p-4"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${conf.color}">${conf.label}</span></td>
+                    <td class="p-4 text-sm font-bold text-slate-700 font-mono" data-label="วันที่ยืม">${formatThaiDateTime(b.start)}</td>
+                    <td class="p-4 text-sm font-black text-blue-600 font-mono" data-label="วันที่คืนจริง">${formatThaiDateTime(b.returnDate)}</td>
+                    <td class="p-4" data-label="ผลลัพธ์"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${conf.color}">${conf.label}</span></td>
                 </tr>`;
             }).join('') || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">${currentHistoryQuery ? 'ไม่พบข้อมูลประวัติที่ค้นหา' : 'ยังไม่มีประวัติการทำรายการ'}</td></tr>`;
-            lucide.createIcons();
+            if(window.lucide) lucide.createIcons();
         }
 
-        // --- ระบบล้างประวัติ ---
         window.confirmClearHistory = async function(btn) {
             if(!user) return;
             btn.classList.add('btn-loading');
@@ -670,7 +736,6 @@
             const historyToClear = bookings.filter(b => ['returned', 'rejected'].includes(b.status));
             
             try {
-                // วนลูปสั่งลบเอกสารประวัติทีละรายการ (ใช้ Promise.all ให้ทำงานพร้อมกัน)
                 await Promise.all(historyToClear.map(b => deleteDoc(doc(db, 'artifacts', myAppId, 'public', 'data', 'bookings', b.id))));
                 showToast(`ล้างประวัติจำนวน ${historyToClear.length} รายการสำเร็จ!`);
             } catch(error) {
@@ -703,12 +768,11 @@
             return bookings.map(b => {
                 const assetName = assets.find(a => a.id === b.assetId)?.name || 'อุปกรณ์ถูกลบ';
                 
-                // กำหนดสีพื้นหลังให้ตรงกับสถานะ
-                let bgColor = '#f59e0b'; // pending (สีเหลือง)
-                if (b.status === 'approved') bgColor = '#0ea5e9'; // สีฟ้า
-                if (b.status === 'borrowed') bgColor = '#4f46e5'; // สีคราม
-                if (b.status === 'returned') bgColor = '#10b981'; // สีเขียว
-                if (b.status === 'rejected') bgColor = '#ef4444'; // สีแดง
+                let bgColor = '#f59e0b';
+                if (b.status === 'approved') bgColor = '#0ea5e9';
+                if (b.status === 'borrowed') bgColor = '#4f46e5';
+                if (b.status === 'returned') bgColor = '#10b981';
+                if (b.status === 'rejected') bgColor = '#ef4444';
                 
                 return { 
                     id: b.id,
@@ -741,7 +805,6 @@
                     const assetName = arg.event.extendedProps.assetName;
                     const userName = arg.event.extendedProps.userName;
 
-                    // สร้างโครงสร้าง HTML แยกสถานะ ชื่ออุปกรณ์ และผู้ยืมให้อ่านง่าย
                     return {
                         html: `
                             <div class="custom-event-content">
@@ -763,7 +826,6 @@
             calendar.addEventSource(getCalendarEvents());
         }
 
-        // เพิ่มการโชว์รูปถ่ายยืนยันใน Event Details
         window.showEventDetails = function(bookingId) {
             const b = bookings.find(x => x.id === bookingId);
             if (!b) return;
@@ -804,7 +866,7 @@
             `;
             document.getElementById('event-detail-content').innerHTML = content;
             openModal('event-detail-modal');
-            lucide.createIcons();
+            if(window.lucide) lucide.createIcons();
         }
 
         window.switchTab = switchTab;

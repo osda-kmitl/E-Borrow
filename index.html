@@ -56,7 +56,7 @@
             margin-bottom: 4px !important;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             cursor: pointer;
-            height: auto !important; /* ให้กล่องขยายความสูงตามเนื้อหาด้านใน */
+            height: auto !important;
         }
         .fc-daygrid-event {
             white-space: normal !important;
@@ -95,14 +95,40 @@
         .fc-daygrid-event-dot { display: none !important; }
         .fc-event-main { padding: 0 !important; }
 
+        /* ====== Mobile UI Optimizations ====== */
         @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #e2e8f0; padding: 15px; flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-            .sidebar > div:first-child { margin-bottom: 0 !important; }
-            nav { display: flex; gap: 5px; width: 100%; margin-top: 15px; overflow-x: auto; padding-bottom: 5px; }
-            .nav-btn { margin-bottom: 0; white-space: nowrap; padding: 10px 14px; }
-            .content-area { padding: 20px; }
-            #user-identity { display: none; }
+            body { display: block; overflow-y: auto; background-color: #f8fafc; }
+            .sidebar { 
+                position: fixed; top: 0; left: 0; right: 0; width: 100%; height: 70px;
+                padding: 10px 20px; border-bottom: 1px solid #e2e8f0; 
+                flex-direction: row !important; align-items: center !important; justify-content: space-between !important;
+                z-index: 40; background: white;
+            }
+            #connection-status { display: none !important; }
+            
+            .content-area { padding: 90px 15px 90px 15px; height: auto; overflow: visible; }
+            
+            nav { 
+                position: fixed; bottom: 0; left: 0; right: 0; width: 100%; 
+                background: white; border-top: 1px solid #e2e8f0; z-index: 50; 
+                display: flex !important; flex-direction: row !important; justify-content: space-around !important; 
+                padding: 10px 5px; margin-top: 0;
+                padding-bottom: calc(10px + env(safe-area-inset-bottom));
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            }
+            .nav-btn { flex-direction: column !important; padding: 5px !important; width: 33%; text-align: center; margin-bottom: 0 !important; }
+            .nav-btn span { font-size: 11px; margin-top: 4px; display: block;}
+            .nav-btn.active { background: transparent !important; color: var(--kmitl) !important; box-shadow: none !important; }
+            .nav-btn i { margin: 0 auto; color: #94a3b8; }
+            .nav-btn.active i { color: var(--kmitl); }
+            
+            .modal { align-items: flex-end; padding: 0; }
+            .modal-content { 
+                max-height: 85vh; padding: 20px; 
+                border-radius: 24px 24px 0 0 !important;
+                animation: slideUp 0.3s ease-out; margin: 0; max-width: 100%;
+            }
+            @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         }
     </style>
 </head>
@@ -121,29 +147,38 @@
                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
                 เข้าสู่ระบบด้วย Google
             </button>
+            
+            <!-- เพิ่มปุ่มโหมดทดสอบ -->
+            <button onclick="loginAnonymously()" class="w-full mt-3 flex items-center justify-center gap-3 bg-slate-100 text-slate-600 font-bold py-3 px-4 rounded-xl hover:bg-slate-200 transition-all shadow-sm text-sm">
+                <i data-lucide="user" class="w-4 h-4"></i>
+                เข้าสู่โหมดทดสอบ (ไม่ต้องใช้อีเมล)
+            </button>
         </div>
     </div>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="flex items-center gap-3 mb-10">
+    <!-- Sidebar / Mobile Header -->
+    <div class="sidebar flex-row justify-between items-center md:flex-col md:items-start md:justify-start">
+        <div class="flex items-center gap-3 mb-0 md:mb-10 w-auto">
             <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
                 <i data-lucide="monitor-smartphone"></i>
             </div>
             <div>
-                <h1 class="font-black text-slate-800 text-lg leading-tight">OSDA System</h1>
-                <p class="text-xs font-bold text-orange-500 uppercase tracking-wider">User Portal</p>
+                <h1 class="font-black text-slate-800 text-lg leading-tight hidden md:block">OSDA System</h1>
+                <h1 class="font-black text-slate-800 text-lg leading-tight md:hidden">OSDA</h1>
+                <p class="text-xs font-bold text-orange-500 uppercase tracking-wider hidden md:block">User Portal</p>
             </div>
         </div>
 
         <!-- User Identity Display -->
-        <div id="user-identity" class="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-100 text-center w-full">
-            <div class="w-16 h-16 rounded-full mx-auto mb-3 bg-slate-200 overflow-hidden border-2 border-white shadow-sm">
+        <div id="user-identity" class="md:mb-6 md:p-4 md:bg-slate-50 md:rounded-xl md:border md:border-slate-100 md:text-center w-auto md:w-full flex items-center gap-3 md:block">
+            <div class="w-10 h-10 md:w-16 md:h-16 rounded-full mx-auto md:mb-3 bg-slate-200 overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
                 <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=random" class="w-full h-full object-cover">
             </div>
-            <h3 id="user-display-name" class="font-bold text-slate-800 text-sm truncate">กำลังโหลด...</h3>
-            <p id="user-email" class="text-[10px] text-slate-500 truncate">-</p>
-            <button onclick="logout()" class="mt-3 text-xs bg-red-50 text-red-500 px-3 py-1.5 rounded-lg font-bold hover:bg-red-500 hover:text-white transition-colors w-full">ออกจากระบบ</button>
+            <div class="hidden md:block">
+                <h3 id="user-display-name" class="font-bold text-slate-800 text-sm truncate">กำลังโหลด...</h3>
+                <p id="user-email" class="text-[10px] text-slate-500 truncate">-</p>
+            </div>
+            <button onclick="logout()" class="text-red-500 md:mt-3 md:text-xs md:bg-red-50 md:px-3 md:py-1.5 md:rounded-lg font-bold md:hover:bg-red-500 md:hover:text-white transition-colors w-auto md:w-full p-2 md:p-0" title="ออกจากระบบ"><i data-lucide="log-out" class="w-5 h-5 md:hidden"></i><span class="hidden md:inline">ออกจากระบบ</span></button>
         </div>
 
         <nav class="flex-grow">
@@ -171,7 +206,7 @@
         
         <!-- Tab 1: Dashboard (Assets) -->
         <div id="tab-dashboard" class="tab-content block">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div>
                     <h2 class="text-2xl font-black text-slate-800">อุปกรณ์ที่สามารถยืมได้</h2>
                     <p class="text-slate-500 mt-1">เลือกระบุเวลาและจองอุปกรณ์ล่วงหน้า</p>
@@ -189,11 +224,11 @@
 
         <!-- Tab 2: My Requests -->
         <div id="tab-my-requests" class="tab-content hidden">
-            <div class="mb-8">
+            <div class="mb-6">
                 <h2 class="text-2xl font-black text-slate-800">รายการยืมของฉัน</h2>
                 <p class="text-slate-500 mt-1">ติดตามสถานะการจอง ถ่ายรูปยืนยันเมื่อรับอุปกรณ์</p>
             </div>
-            <div class="card">
+            <div class="card p-4 md:p-6">
                 <div id="my-requests-list" class="space-y-4">
                     <p class="text-slate-400 py-10 text-center font-bold">กำลังตรวจสอบประวัติ...</p>
                 </div>
@@ -202,12 +237,12 @@
 
         <!-- Tab 3: Calendar -->
         <div id="tab-calendar-view" class="tab-content hidden">
-            <div class="mb-8">
+            <div class="mb-6">
                 <h2 class="text-2xl font-black text-slate-800">ปฏิทินคิวอุปกรณ์</h2>
                 <p class="text-slate-500 mt-1">ตรวจสอบคิวเพื่อหลีกเลี่ยงการจองชนกัน</p>
             </div>
             <div class="card p-2 md:p-6">
-                <div id="calendar" class="min-h-[500px]"></div>
+                <div id="calendar" class="min-h-[400px] md:min-h-[500px]"></div>
             </div>
         </div>
 
@@ -224,18 +259,19 @@
                 <div id="selected-asset-info" class="p-4 bg-orange-50 rounded-xl mb-4 border border-orange-100"></div>
                 <input type="hidden" id="booking-asset-id">
                 
-                <!-- ช่องกรอกเบอร์โทรศัพท์ -->
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-1">เบอร์โทรศัพท์ติดต่อ <span class="text-red-500">*</span></label>
                     <input type="tel" id="book-phone" class="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100" placeholder="08x-xxx-xxxx" required>
                 </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-1">เวลารับของ (08:00 - 17:00)</label>
-                    <input type="text" id="book-start" class="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100 bg-white placeholder-slate-400 cursor-pointer" placeholder="เลือกวัน-เวลารับของ">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-1">เวลาคืนของ (08:00 - 17:00)</label>
-                    <input type="text" id="book-end" class="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100 bg-white placeholder-slate-400 cursor-pointer" placeholder="เลือกวัน-เวลาคืนของ">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">เวลารับของ</label>
+                        <input type="text" id="book-start" class="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100 bg-white placeholder-slate-400 cursor-pointer" placeholder="เลือกวัน-เวลารับของ">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">เวลาคืนของ</label>
+                        <input type="text" id="book-end" class="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100 bg-white placeholder-slate-400 cursor-pointer" placeholder="เลือกวัน-เวลาคืนของ">
+                    </div>
                 </div>
                 <p class="text-[10px] text-red-500 font-bold">* ให้บริการเฉพาะเวลา 08:00 น. ถึง 17:00 น. เท่านั้น</p>
                 
@@ -313,7 +349,6 @@
         const firebaseConfig = isCanvasEnv ? JSON.parse(__firebase_config) : myFirebaseConfig;
         const appId = typeof __app_id !== 'undefined' ? __app_id : myAppId;
 
-        // Initialize Firebase
         let app, auth, db, user;
         try {
             app = initializeApp(firebaseConfig);
@@ -328,24 +363,20 @@
         let calendar = null;
         let currentSearchQuery = '';
 
-        // ตัวแปรเก็บ Instance ปฏิทิน
         let fpStart = null;
         let fpEnd = null;
 
-        // ฟังก์ชันแปลงรูปแบบเวลาเป็น วัน-เดือน-ปี ชั่วโมง:นาที น.
         function formatThaiDateTime(dateStr) {
             if (!dateStr) return '-';
             if (dateStr.includes(' น.')) return dateStr.replace(' น.', '&nbsp;น.');
             try {
                 const dateObj = new Date(dateStr);
                 if (isNaN(dateObj)) return dateStr;
-                
                 const day = String(dateObj.getDate()).padStart(2, '0');
                 const month = String(dateObj.getMonth() + 1).padStart(2, '0');
                 const year = dateObj.getFullYear();
                 const hours = String(dateObj.getHours()).padStart(2, '0');
                 const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-                
                 return `${day}-${month}-${year} ${hours}:${minutes}&nbsp;น.`;
             } catch (e) {
                 return dateStr;
@@ -353,23 +384,27 @@
         }
 
         const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({ hd: 'kmitl.ac.th' }); // อนุญาตเฉพาะ kmitl
+        provider.setCustomParameters({ hd: 'kmitl.ac.th' });
 
-        // เชื่อมต่อระบบ
         async function initAuth() {
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 try {
                     await signInWithCustomToken(auth, __initial_auth_token);
                 } catch (e) {
                     console.error("Token error:", e);
+                    await signInAnonymously(auth);
                 }
+            } else if (isCanvasEnv) {
+                await signInAnonymously(auth);
             }
         }
 
         onAuthStateChanged(auth, (u) => {
             if (u) {
                 const isCanvasToken = typeof __initial_auth_token !== 'undefined' && __initial_auth_token;
-                if (!isCanvasToken && u.email && !u.email.endsWith('@kmitl.ac.th')) {
+                
+                // ถ้ายืนยันตัวตนแบบใช้อีเมลและไม่ใช่อีเมลสถาบัน ให้เตะออก
+                if (!isCanvasToken && !u.isAnonymous && u.email && !u.email.endsWith('@kmitl.ac.th')) {
                     signOut(auth);
                     showToast('เข้าสู่ระบบล้มเหลว: อนุญาตเฉพาะอีเมล @kmitl.ac.th', 'error');
                     return;
@@ -379,9 +414,16 @@
                 document.getElementById('login-screen').classList.add('hidden'); 
                 document.getElementById('connection-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-green-500"></span> เชื่อมต่อฐานข้อมูลสำเร็จ`;
                 
-                document.getElementById('user-display-name').innerText = u.displayName || 'ผู้ใช้งานระบบ';
-                document.getElementById('user-email').innerText = u.email || 'โหมดทดสอบ';
-                if (u.photoURL) document.getElementById('user-avatar').src = u.photoURL;
+                // ตรวจสอบว่าเป็นโหมดทดสอบ (Anonymous) หรือ ผู้ใช้จริง
+                if (u.isAnonymous) {
+                    document.getElementById('user-display-name').innerText = 'ผู้ใช้งาน (โหมดทดสอบ)';
+                    document.getElementById('user-email').innerText = 'ทดสอบระบบโดยไม่ต้องใช้อีเมล';
+                    document.getElementById('user-avatar').src = 'https://ui-avatars.com/api/?name=Test+User&background=f59e0b&color=fff';
+                } else {
+                    document.getElementById('user-display-name').innerText = u.displayName || 'ผู้ใช้งานระบบ';
+                    document.getElementById('user-email').innerText = u.email || 'ไม่ทราบอีเมล';
+                    if (u.photoURL) document.getElementById('user-avatar').src = u.photoURL;
+                }
 
                 subscribeToData();
             } else {
@@ -400,6 +442,17 @@
                     errMsg = "กรุณาเปิดใช้งาน 'Google' Login ใน Firebase Console";
                 }
                 showToast(errMsg, 'error');
+            }
+        };
+
+        // ฟังก์ชันเข้าสู่ระบบโหมดทดสอบ (ไม่ต้องใช้อีเมล)
+        window.loginAnonymously = async () => {
+            try {
+                await signInAnonymously(auth);
+                showToast('เข้าสู่ระบบโหมดทดสอบสำเร็จ');
+            } catch (error) {
+                console.error(error);
+                showToast('ไม่สามารถเข้าโหมดทดสอบได้ กรุณาเปิดใช้งาน Anonymous Auth ใน Firebase', 'error');
             }
         };
 
@@ -443,19 +496,16 @@
             btnElement.classList.add('active');
 
             if (tabId === 'calendar-view') {
-                // หน่วงเวลาเล็กน้อยเพื่อให้ DOM ปรับโครงสร้างเสร็จก่อนที่ปฏิทินจะพยายามคำนวณความสูง
                 setTimeout(() => {
                     if (!calendar) initCalendar();
-                    else calendar.render();
+                    else calendar.render(); 
                 }, 100);
             }
         }
 
-        // ฟังก์ชันสำหรับเปิด-ปิด Modal
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        // --- ระบบค้นหา ---
         window.filterAssets = function(query) {
             currentSearchQuery = query;
             renderAssets(query);
@@ -464,7 +514,6 @@
         function renderAssets(searchQuery = '') {
             const grid = document.getElementById('assets-grid');
             
-            // กรองข้อมูลจากชื่อหรือรายละเอียด
             const filteredAssets = assets.filter(a => {
                 const term = searchQuery.toLowerCase();
                 return a.name.toLowerCase().includes(term) || (a.desc && a.desc.toLowerCase().includes(term));
@@ -572,7 +621,7 @@
             const end = document.getElementById('book-end').value;
             
             if(!user) return showToast('กรุณาเข้าสู่ระบบก่อนทำรายการ', 'error');
-            const username = user.displayName || 'ผู้ใช้งานไม่ระบุชื่อ';
+            const username = user.isAnonymous ? 'ผู้ใช้งาน (ทดสอบ)' : (user.displayName || 'ผู้ใช้งานไม่ระบุชื่อ');
             const userId = user.uid;
 
             if (!phone) return showToast('กรุณากรอกเบอร์โทรศัพท์ติดต่อ', 'error');
@@ -658,9 +707,6 @@
             if(window.lucide) lucide.createIcons();
         }
 
-        // ==========================================
-        // ระบบถ่ายรูปยืนยัน (Native Mobile Camera & Upload)
-        // ==========================================
         let currentCapturedImage = null;
         let confirmBookingId = null;
 
@@ -732,25 +778,32 @@
         }
 
         function getCalendarEvents() {
+            const stLabel = {
+                'pending': 'รออนุมัติ',
+                'approved': 'รอรับของ',
+                'borrowed': 'กำลังยืม',
+                'returned': 'คืนแล้ว',
+                'rejected': 'ปฏิเสธ'
+            };
+            
             return bookings.map(b => {
-                const assetName = assets.find(a => a.id === b.assetId)?.name || 'Unknown';
+                const assetName = assets.find(a => a.id === b.assetId)?.name || 'อุปกรณ์ถูกลบ';
                 
-                // กำหนดสีพื้นหลังให้ตรงกับสถานะ
-                let bgColor = '#f59e0b'; // pending (รออนุมัติ - สีเหลือง)
-                if (b.status === 'approved') bgColor = '#0ea5e9'; // approved (รอรับของ - สีฟ้า)
-                if (b.status === 'borrowed') bgColor = '#4f46e5'; // borrowed (กำลังยืม - สีคราม)
-                if (b.status === 'returned') bgColor = '#10b981'; // returned (คืนแล้ว - สีเขียว)
-                if (b.status === 'rejected') bgColor = '#ef4444'; // rejected (ปฏิเสธ - สีแดง)
-
-                return {
-                    id: b.id, 
-                    title: `${assetName} (${b.user})`,
+                let bgColor = '#f59e0b';
+                if (b.status === 'approved') bgColor = '#0ea5e9';
+                if (b.status === 'borrowed') bgColor = '#4f46e5';
+                if (b.status === 'returned') bgColor = '#10b981';
+                if (b.status === 'rejected') bgColor = '#ef4444';
+                
+                return { 
+                    id: b.id,
+                    title: `${assetName} (${b.user})`, 
                     start: b.start, 
-                    end: b.end,
-                    backgroundColor: bgColor,
+                    end: b.end, 
+                    backgroundColor: bgColor, 
                     borderColor: 'transparent',
                     extendedProps: {
-                        statusLabel: statusConfig[b.status]?.label || b.status,
+                        statusLabel: stLabel[b.status] || b.status,
                         assetName: assetName,
                         userName: b.user
                     }
@@ -759,22 +812,24 @@
         }
 
         function initCalendar() {
-            calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
-                initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth', locale: 'th',
+            const calendarEl = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, { 
+                initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth', 
+                locale: 'th', 
                 events: getCalendarEvents(),
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listMonth' },
                 eventDisplay: 'block',
                 displayEventTime: false,
                 eventClick: function(info) { showEventDetails(info.event.id); },
                 eventContent: function(arg) {
-                    const statusLabelText = arg.event.extendedProps.statusLabel;
+                    const statusLabel = arg.event.extendedProps.statusLabel;
                     const assetName = arg.event.extendedProps.assetName;
                     const userName = arg.event.extendedProps.userName;
 
                     return {
                         html: `
                             <div class="custom-event-content">
-                                <span class="custom-event-badge">${statusLabelText}</span>
+                                <span class="custom-event-badge">${statusLabel}</span>
                                 <span class="custom-event-title">${assetName}</span>
                                 <span class="custom-event-user">👤 ${userName}</span>
                             </div>
@@ -785,17 +840,16 @@
             calendar.render();
         }
 
-        function showEventDetails(bookingId) {
+        window.showEventDetails = function(bookingId) {
             const b = bookings.find(x => x.id === bookingId);
             if (!b) return;
             const a = assets.find(x => x.id === b.assetId);
-            const st = statusConfig[b.status] || { color: 'bg-slate-100', label: b.status };
+            const conf = statusConfig[b.status];
 
             const photoHTML = b.confirmationImage 
                 ? `<div class="col-span-2 mt-2"><p class="text-[10px] font-bold text-slate-400 uppercase mb-2">รูปถ่ายยืนยันรับอุปกรณ์</p><img src="${b.confirmationImage}" class="w-full rounded-xl border border-slate-200"></div>`
                 : '';
 
-            // ถอดส่วนการแสดงเบอร์โทรศัพท์ (b.phone) ออกจากฝั่งผู้ใช้งานเพื่อความเป็นส่วนตัว
             const content = `
                 <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 mb-2">
                     <p class="text-[10px] font-bold text-orange-600 uppercase tracking-wider mb-1">อุปกรณ์</p>
@@ -808,7 +862,7 @@
                     </div>
                     <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col justify-center items-start">
                         <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">สถานะ</p>
-                        <span class="px-3 py-1.5 rounded-full text-sm font-black uppercase ${st.color} inline-block">${st.label}</span>
+                        <span class="px-3 py-1.5 rounded-full text-sm font-black uppercase ${conf.color} inline-block">${conf.label}</span>
                     </div>
                     <div class="col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="p-3 bg-indigo-50 rounded-lg border border-indigo-100">
@@ -825,7 +879,7 @@
             `;
             document.getElementById('event-detail-content').innerHTML = content;
             openModal('event-detail-modal');
-            if (window.lucide) window.lucide.createIcons();
+            if(window.lucide) lucide.createIcons();
         }
 
         function updateCalendarEvents() {
@@ -835,7 +889,6 @@
             calendar.addEventSource(getCalendarEvents());
         }
 
-        // --- Export Functions for HTML inline usage ---
         window.switchTab = switchTab;
         window.openModal = openModal;
         window.closeModal = closeModal;
