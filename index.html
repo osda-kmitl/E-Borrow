@@ -160,12 +160,6 @@
                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
                 เข้าสู่ระบบด้วย Google
             </button>
-            
-            <!-- ปุ่มโหมดทดสอบ -->
-            <button onclick="loginAnonymously()" class="w-full mt-3 flex items-center justify-center gap-3 bg-slate-100 text-slate-600 font-bold py-3 px-4 rounded-xl hover:bg-slate-200 transition-all shadow-sm text-sm">
-                <i data-lucide="user" class="w-4 h-4"></i>
-                เข้าสู่โหมดทดสอบ (ไม่ต้องใช้อีเมล)
-            </button>
         </div>
     </div>
 
@@ -237,9 +231,16 @@
 
         <!-- Tab 2: My Requests -->
         <div id="tab-my-requests" class="tab-content hidden">
-            <div class="mb-6">
-                <h2 class="text-2xl font-black text-slate-800">รายการยืมของฉัน</h2>
-                <p class="text-slate-500 mt-1">ติดตามสถานะการจอง ถ่ายรูปยืนยันเมื่อรับอุปกรณ์</p>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800">รายการยืมของฉัน</h2>
+                    <p class="text-slate-500 mt-1">ติดตามสถานะการจอง ถ่ายรูปยืนยันเมื่อรับอุปกรณ์</p>
+                </div>
+                <!-- ระบบค้นหารายการของฉัน -->
+                <div class="relative w-full md:w-64">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"></i>
+                    <input type="text" oninput="filterMyRequests(this.value)" placeholder="ค้นหาชื่ออุปกรณ์, สถานะ..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm">
+                </div>
             </div>
             <div class="card p-4 md:p-6">
                 <div id="my-requests-list" class="space-y-4">
@@ -362,6 +363,9 @@
         const firebaseConfig = isCanvasEnv ? JSON.parse(__firebase_config) : myFirebaseConfig;
         const appId = typeof __app_id !== 'undefined' ? __app_id : myAppId;
 
+        // เช็คว่ารันผ่าน Local Host หรือเปิดไฟล์ .html ตรงๆ หรือไม่
+        const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+
         // Initialize Firebase
         let app, auth, db, user;
         try {
@@ -376,6 +380,7 @@
         let bookings = [];
         let calendar = null;
         let currentSearchQuery = '';
+        let currentMyRequestsQuery = '';
 
         // ตัวแปรเก็บ Instance ปฏิทิน
         let fpStart = null;
@@ -411,10 +416,15 @@
                     await signInWithCustomToken(auth, __initial_auth_token);
                 } catch (e) {
                     console.error("Token error:", e);
-                    await signInAnonymously(auth);
+                    if (isLocalHost || isCanvasEnv) await signInAnonymously(auth);
                 }
-            } else if (isCanvasEnv) {
-                await signInAnonymously(auth);
+            } else if (isCanvasEnv || isLocalHost) {
+                // ออโต้ล็อกอินเข้าโหมดทดสอบ หากเปิดผ่าน Local Host หรือใน Canvas
+                try {
+                    await signInAnonymously(auth);
+                } catch (e) {
+                    console.error("Test mode auth error:", e);
+                }
             }
         }
 
@@ -461,17 +471,6 @@
                     errMsg = "กรุณาเปิดใช้งาน 'Google' Login ใน Firebase Console";
                 }
                 showToast(errMsg, 'error');
-            }
-        };
-
-        // ฟังก์ชันเข้าสู่ระบบโหมดทดสอบ (ไม่ต้องใช้อีเมล)
-        window.loginAnonymously = async () => {
-            try {
-                await signInAnonymously(auth);
-                showToast('เข้าสู่ระบบโหมดทดสอบสำเร็จ');
-            } catch (error) {
-                console.error(error);
-                showToast('ไม่สามารถเข้าโหมดทดสอบได้ กรุณาเปิดใช้งาน Anonymous Auth ใน Firebase', 'error');
             }
         };
 
@@ -696,9 +695,24 @@
             'rejected': { color: 'bg-red-100 text-red-700', label: 'ถูกปฏิเสธ' }
         };
 
+        window.filterMyRequests = function(query) {
+            currentMyRequestsQuery = query;
+            renderMyRequests();
+        }
+
         function renderMyRequests() {
             const list = document.getElementById('my-requests-list');
-            const myBookings = bookings.filter(b => b.userId === user?.uid).sort((a,b) => new Date(b.start) - new Date(a.start));
+            let myBookings = bookings.filter(b => b.userId === user?.uid).sort((a,b) => new Date(b.start) - new Date(a.start));
+
+            if (currentMyRequestsQuery) {
+                const term = currentMyRequestsQuery.toLowerCase();
+                myBookings = myBookings.filter(b => {
+                    const asset = assets.find(a => a.id === b.assetId);
+                    const assetName = asset ? asset.name.toLowerCase() : '';
+                    const statusLabel = statusConfig[b.status] ? statusConfig[b.status].label.toLowerCase() : '';
+                    return assetName.includes(term) || statusLabel.includes(term);
+                });
+            }
 
             list.innerHTML = myBookings.map(b => {
                 const asset = assets.find(a => a.id === b.assetId);
@@ -725,7 +739,7 @@
                         ${actionBtn}
                     </div>
                 </div>`;
-            }).join('') || '<p class="py-10 text-slate-400 font-bold text-center">คุณยังไม่มีรายการทำจอง</p>';
+            }).join('') || `<p class="py-10 text-slate-400 font-bold text-center">${currentMyRequestsQuery ? 'ไม่พบรายการที่ค้นหา' : 'คุณยังไม่มีรายการทำจอง'}</p>`;
             if(window.lucide) lucide.createIcons();
         }
 
