@@ -129,6 +129,14 @@
                 animation: slideUp 0.3s ease-out; margin: 0; max-width: 100%;
             }
             @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+            /* ปรับแต่งปฏิทินสำหรับมือถือโดยเฉพาะ */
+            .fc .fc-toolbar.fc-header-toolbar { flex-direction: column; gap: 12px; margin-bottom: 1rem !important; }
+            .fc .fc-toolbar-title { font-size: 1.25rem !important; }
+            .fc .fc-button-group { width: 100%; justify-content: center; }
+            .fc .fc-button { padding: 8px 12px !important; font-size: 12px !important; flex-grow: 1; }
+            .fc-list-event-title { padding: 12px !important; }
+            .fc-list-event-time { padding: 12px !important; width: auto !important; }
         }
     </style>
 </head>
@@ -148,7 +156,7 @@
                 เข้าสู่ระบบด้วย Google
             </button>
             
-            <!-- เพิ่มปุ่มโหมดทดสอบ -->
+            <!-- ปุ่มโหมดทดสอบ -->
             <button onclick="loginAnonymously()" class="w-full mt-3 flex items-center justify-center gap-3 bg-slate-100 text-slate-600 font-bold py-3 px-4 rounded-xl hover:bg-slate-200 transition-all shadow-sm text-sm">
                 <i data-lucide="user" class="w-4 h-4"></i>
                 เข้าสู่โหมดทดสอบ (ไม่ต้องใช้อีเมล)
@@ -349,6 +357,7 @@
         const firebaseConfig = isCanvasEnv ? JSON.parse(__firebase_config) : myFirebaseConfig;
         const appId = typeof __app_id !== 'undefined' ? __app_id : myAppId;
 
+        // Initialize Firebase
         let app, auth, db, user;
         try {
             app = initializeApp(firebaseConfig);
@@ -363,20 +372,24 @@
         let calendar = null;
         let currentSearchQuery = '';
 
+        // ตัวแปรเก็บ Instance ปฏิทิน
         let fpStart = null;
         let fpEnd = null;
 
+        // ฟังก์ชันแปลงรูปแบบเวลาเป็น วัน-เดือน-ปี ชั่วโมง:นาที น.
         function formatThaiDateTime(dateStr) {
             if (!dateStr) return '-';
             if (dateStr.includes(' น.')) return dateStr.replace(' น.', '&nbsp;น.');
             try {
                 const dateObj = new Date(dateStr);
                 if (isNaN(dateObj)) return dateStr;
+                
                 const day = String(dateObj.getDate()).padStart(2, '0');
                 const month = String(dateObj.getMonth() + 1).padStart(2, '0');
                 const year = dateObj.getFullYear();
                 const hours = String(dateObj.getHours()).padStart(2, '0');
                 const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                
                 return `${day}-${month}-${year} ${hours}:${minutes}&nbsp;น.`;
             } catch (e) {
                 return dateStr;
@@ -384,8 +397,9 @@
         }
 
         const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({ hd: 'kmitl.ac.th' });
+        provider.setCustomParameters({ hd: 'kmitl.ac.th' }); // อนุญาตเฉพาะ kmitl
 
+        // เชื่อมต่อระบบ
         async function initAuth() {
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 try {
@@ -503,9 +517,11 @@
             }
         }
 
+        // ฟังก์ชันสำหรับเปิด-ปิด Modal
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
+        // --- ระบบค้นหา ---
         window.filterAssets = function(query) {
             currentSearchQuery = query;
             renderAssets(query);
@@ -514,6 +530,7 @@
         function renderAssets(searchQuery = '') {
             const grid = document.getElementById('assets-grid');
             
+            // กรองข้อมูลจากชื่อหรือรายละเอียด
             const filteredAssets = assets.filter(a => {
                 const term = searchQuery.toLowerCase();
                 return a.name.toLowerCase().includes(term) || (a.desc && a.desc.toLowerCase().includes(term));
@@ -707,6 +724,9 @@
             if(window.lucide) lucide.createIcons();
         }
 
+        // ==========================================
+        // ระบบถ่ายรูปยืนยัน (Native Mobile Camera & Upload)
+        // ==========================================
         let currentCapturedImage = null;
         let confirmBookingId = null;
 
@@ -812,12 +832,16 @@
         }
 
         function initCalendar() {
-            const calendarEl = document.getElementById('calendar');
-            calendar = new FullCalendar.Calendar(calendarEl, { 
-                initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth', 
+            const isMobile = window.innerWidth < 768;
+            calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+                initialView: isMobile ? 'listMonth' : 'dayGridMonth', 
                 locale: 'th', 
                 events: getCalendarEvents(),
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listMonth' },
+                headerToolbar: { 
+                    left: isMobile ? 'prev,next' : 'prev,next today', 
+                    center: 'title', 
+                    right: isMobile ? 'listMonth,dayGridMonth' : 'dayGridMonth,timeGridWeek,listMonth' 
+                },
                 eventDisplay: 'block',
                 displayEventTime: false,
                 eventClick: function(info) { showEventDetails(info.event.id); },
@@ -840,7 +864,7 @@
             calendar.render();
         }
 
-        window.showEventDetails = function(bookingId) {
+        function showEventDetails(bookingId) {
             const b = bookings.find(x => x.id === bookingId);
             if (!b) return;
             const a = assets.find(x => x.id === b.assetId);
