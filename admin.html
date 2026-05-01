@@ -23,7 +23,7 @@
         .content-area { flex-grow: 1; padding: 40px; overflow-y: auto; position: relative; }
         .card { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
         
-        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 60; align-items: center; justify-content: center; padding: 16px; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 70; align-items: center; justify-content: center; padding: 16px; }
         .modal.active { display: flex; }
         .modal-content { background: white; border-radius: 24px; width: 100%; max-width: 550px; padding: 32px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); max-height: 90vh; overflow-y: auto; }
 
@@ -43,79 +43,43 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .btn-loading { pointer-events: none; opacity: 0.8; }
         
-        /* ปรับแต่งปฏิทินให้แสดงสถานะและชื่อได้เต็มที่ไม่ตกกรอบ */
-        .fc-event {
-            border: none !important;
-            border-radius: 8px !important;
-            margin-bottom: 4px !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            cursor: pointer;
-            height: auto !important;
-        }
-        .fc-daygrid-event {
-            white-space: normal !important;
-            align-items: stretch !important;
-        }
-        .custom-event-content {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding: 6px;
-            word-break: break-word;
-        }
-        .custom-event-badge {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11.5px;
-            font-weight: 800;
-            background: rgba(255, 255, 255, 0.25);
-            color: #ffffff;
-            width: max-content;
-            max-width: 100%;
-        }
-        .custom-event-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: white;
-            line-height: 1.3;
-        }
-        .custom-event-user {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 500;
-            line-height: 1.2;
-        }
+        /* ปรับแต่งปฏิทิน */
+        .fc-event { border: none !important; border-radius: 8px !important; margin-bottom: 4px !important; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; height: auto !important; }
+        .fc-daygrid-event { white-space: normal !important; align-items: stretch !important; }
+        .custom-event-content { display: flex; flex-direction: column; gap: 4px; padding: 6px; word-break: break-word; }
+        .custom-event-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11.5px; font-weight: 800; background: rgba(255, 255, 255, 0.25); color: #ffffff; width: max-content; max-width: 100%; }
+        .custom-event-title { font-size: 13px; font-weight: 700; color: white; line-height: 1.3; }
+        .custom-event-user { font-size: 11px; color: rgba(255, 255, 255, 0.9); font-weight: 500; line-height: 1.2; }
         .fc-daygrid-event-dot { display: none !important; }
         .fc-event-main { padding: 0 !important; }
 
-        /* ปรับแต่ง List View บนมือถือให้แสดงเป็นบล็อกสีทึบ */
-        .fc-list-event-graphic, .fc-list-event-time { display: none !important; }
-        .fc-list-event-title { padding: 4px 0 !important; border: none !important; }
-        .fc-list-event:hover td { background-color: transparent !important; }
-
         /* ====== Mobile UI Optimizations ====== */
         @media (max-width: 768px) {
-            body { display: block; overflow-y: auto; background-color: #f8fafc; }
+            /* แก้ไขปัญหาความสูงหน้าจอ */
+            body { display: block; overflow-y: auto; background-color: #f8fafc; height: auto; min-height: 100vh; min-height: 100dvh; }
+            
             .sidebar { 
                 position: fixed; top: 0; left: 0; right: 0; width: 100%; height: 70px;
                 padding: 10px 20px; border-bottom: 1px solid #e2e8f0; 
                 flex-direction: row !important; align-items: center !important; justify-content: space-between !important;
-                z-index: 40; background: white;
+                z-index: 40; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             }
             #connection-status, #admin-info-desktop { display: none !important; }
-            .content-area { padding: 90px 15px 90px 15px; height: auto; overflow: visible; }
+            
+            /* เพิ่ม Padding ด้านล่างให้เพียงพอ ไม่ให้ Tab bar บังเนื้อหาเวลาเลื่อนสุด (180px สำหรับแอดมิน 4 แท็บ) */
+            .content-area { padding: 90px 15px 180px 15px; height: auto; overflow: visible; min-height: calc(100vh + 1px); }
             
             nav { 
                 position: fixed; bottom: 0; left: 0; right: 0; width: 100%; 
-                background: white; border-top: 1px solid #e2e8f0; z-index: 50; 
+                background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+                border-top: 1px solid #e2e8f0; z-index: 50; 
                 display: flex !important; flex-direction: row !important; justify-content: space-around !important; 
                 padding: 10px 5px; margin-top: 0;
-                padding-bottom: calc(10px + env(safe-area-inset-bottom));
+                padding-bottom: calc(15px + env(safe-area-inset-bottom));
                 box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
             }
             .nav-btn { flex-direction: column !important; padding: 5px !important; width: 25%; text-align: center; margin-bottom: 0 !important; }
-            .nav-btn span { font-size: 10px; margin-top: 4px; display: block;}
+            .nav-btn span.md\:hidden { font-size: 10px; margin-top: 4px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .nav-btn.active { background: transparent !important; color: var(--kmitl) !important; box-shadow: none !important; }
             .nav-btn i { margin: 0 auto; color: #94a3b8; }
             .nav-btn.active i { color: var(--kmitl); }
@@ -128,13 +92,17 @@
             }
             @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-            /* ปรับแต่งปฏิทินสำหรับมือถือโดยเฉพาะ */
             .fc .fc-toolbar.fc-header-toolbar { flex-direction: column; gap: 12px; margin-bottom: 1rem !important; }
             .fc .fc-toolbar-title { font-size: 1.25rem !important; }
             .fc .fc-button-group { width: 100%; justify-content: center; }
             .fc .fc-button { padding: 8px 12px !important; font-size: 12px !important; flex-grow: 1; }
             .fc-list-event-title { padding: 12px !important; }
             .fc-list-event-time { padding: 12px !important; width: auto !important; }
+
+            /* ปรับแต่ง List View มือถือ ให้เป็นบล็อกสีทึบ */
+            .fc-list-event-graphic, .fc-list-event-time { display: none !important; }
+            .fc-list-event-title { padding: 4px 0 !important; border: none !important; }
+            .fc-list-event:hover td { background-color: transparent !important; }
 
             /* Responsive Tables to Cards for Admin */
             table, thead, tbody, th, td, tr { display: block; width: 100%; }
@@ -146,7 +114,8 @@
             td > div, td > p { text-align: left; margin: 0; width: 100%; justify-content: flex-start; }
             td.flex { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px;}
             .justify-end { justify-content: flex-start !important; }
-            .card.overflow-x-auto { padding: 0px; background: transparent; border: none; box-shadow: none;} 
+            /* เพิ่ม Margin ด้านล่างให้การ์ดสุดท้ายไม่โดนบัง */
+            .card.overflow-x-auto { padding: 0px; background: transparent; border: none; box-shadow: none; margin-bottom: 40px; } 
             tbody tr td:last-child { margin-top: 10px; padding-top: 15px !important; border-top: 1px dashed #e2e8f0 !important; }
         }
     </style>
@@ -169,21 +138,26 @@
         <nav class="flex-grow">
             <div class="nav-btn active" onclick="switchTab('assets', this)">
                 <i data-lucide="package" class="w-5 h-5"></i>
-                <span>คลังอุปกรณ์</span>
+                <span class="hidden md:inline">คลังอุปกรณ์</span>
+                <span class="md:hidden">คลังอุปกรณ์</span>
             </div>
-            <div class="nav-btn" onclick="switchTab('requests', this)">
-                <i data-lucide="bell" class="w-5 h-5"></i>
-                <span class="flex-grow hidden md:inline">คำขอยืม</span>
+            <div class="nav-btn relative" onclick="switchTab('requests', this)">
+                <div class="relative flex items-center justify-center">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                    <span id="pending-count" class="absolute -top-1 -right-2 bg-red-500 text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full hidden">0</span>
+                </div>
+                <span class="flex-grow hidden md:inline ml-2">คำขอยืม</span>
                 <span class="md:hidden">คำขอ</span>
-                <span id="pending-count" class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full hidden">0</span>
             </div>
             <div class="nav-btn" onclick="switchTab('calendar-view', this)">
                 <i data-lucide="calendar" class="w-5 h-5"></i>
-                <span>ปฏิทิน</span>
+                <span class="hidden md:inline">ปฏิทิน</span>
+                <span class="md:hidden">ปฏิทิน</span>
             </div>
             <div class="nav-btn" onclick="switchTab('history', this)">
                 <i data-lucide="history" class="w-5 h-5"></i>
-                <span>ประวัติ</span>
+                <span class="hidden md:inline">ประวัติ</span>
+                <span class="md:hidden">ประวัติ</span>
             </div>
         </nav>
         
@@ -200,7 +174,6 @@
                 <p class="text-xs font-bold text-slate-800 truncate" id="admin-name">Admin User</p>
                 <p class="text-[10px] text-slate-500 truncate" id="admin-email">admin@kmitl.ac.th</p>
             </div>
-            <!-- Logout Button -->
             <button onclick="logout()" class="text-red-500 bg-red-50 p-2 md:px-3 md:py-1.5 rounded-lg font-bold hover:bg-red-500 hover:text-white transition-colors w-auto" title="ออกจากระบบ">
                 <i data-lucide="log-out" class="w-5 h-5 md:hidden"></i>
                 <span class="hidden md:inline">ออกจากระบบ</span>
@@ -343,7 +316,7 @@
         </div>
     </div>
 
-    <!-- Event Detail Modal (แสดงรายละเอียด & รูปถ่ายยืนยัน) -->
+    <!-- Event Detail Modal -->
     <div id="event-detail-modal" class="modal">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
@@ -415,7 +388,7 @@
         let currentRequestsQuery = '';
         let currentHistoryQuery = '';
 
-        // ฟังก์ชันแปลงรูปแบบเวลาเป็น วัน-เดือน-ปี ชั่วโมง:นาที น.
+        // ฟังก์ชันแปลงรูปแบบเวลา
         function formatThaiDateTime(dateStr) {
             if (!dateStr) return '-';
             if (dateStr.includes(' น.')) return dateStr.replace(' น.', '&nbsp;น.');
@@ -465,7 +438,6 @@
 
         function subscribeToData() {
             if (!user) return;
-            if(window.lucide) lucide.createIcons();
             
             const assetsRef = collection(db, 'artifacts', myAppId, 'public', 'data', 'assets');
             const bookingsRef = collection(db, 'artifacts', myAppId, 'public', 'data', 'bookings');
@@ -604,7 +576,7 @@
             }
         }
 
-        // --- ระบบค้นหา (อุปกรณ์) ---
+        // --- ระบบค้นหา ---
         window.filterAssets = function(query) {
             currentSearchQuery = query;
             renderAssets(query);
@@ -641,7 +613,6 @@
             'rejected': { color: 'bg-red-100 text-red-700', label: 'ถูกปฏิเสธ' }
         };
 
-        // --- ระบบค้นหา (คำขอยืม) ---
         window.filterRequests = function(query) {
             currentRequestsQuery = query;
             renderRequests();
@@ -701,7 +672,6 @@
             if(window.lucide) lucide.createIcons();
         }
 
-        // --- ระบบค้นหา (ประวัติ) ---
         window.filterHistory = function(query) {
             currentHistoryQuery = query;
             renderHistory();
@@ -824,7 +794,6 @@
                     const userName = arg.event.extendedProps.userName;
                     const bgColor = arg.event.backgroundColor;
 
-                    // สร้างโครงสร้าง HTML แยกสถานะ ชื่ออุปกรณ์ และผู้ยืมให้อ่านง่าย
                     return {
                         html: `
                             <div class="custom-event-content" style="background-color: ${bgColor}; border-radius: 8px;">
