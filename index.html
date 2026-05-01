@@ -95,6 +95,11 @@
         .fc-daygrid-event-dot { display: none !important; }
         .fc-event-main { padding: 0 !important; }
 
+        /* ปรับแต่ง List View บนมือถือให้แสดงเป็นบล็อกสีทึบ */
+        .fc-list-event-graphic, .fc-list-event-time { display: none !important; }
+        .fc-list-event-title { padding: 4px 0 !important; border: none !important; }
+        .fc-list-event:hover td { background-color: transparent !important; }
+
         /* ====== Mobile UI Optimizations ====== */
         @media (max-width: 768px) {
             body { display: block; overflow-y: auto; background-color: #f8fafc; }
@@ -849,10 +854,11 @@
                     const statusLabel = arg.event.extendedProps.statusLabel;
                     const assetName = arg.event.extendedProps.assetName;
                     const userName = arg.event.extendedProps.userName;
+                    const bgColor = arg.event.backgroundColor;
 
                     return {
                         html: `
-                            <div class="custom-event-content">
+                            <div class="custom-event-content" style="background-color: ${bgColor}; border-radius: 8px;">
                                 <span class="custom-event-badge">${statusLabel}</span>
                                 <span class="custom-event-title">${assetName}</span>
                                 <span class="custom-event-user">👤 ${userName}</span>
