@@ -89,6 +89,11 @@
         .fc-daygrid-event-dot { display: none !important; }
         .fc-event-main { padding: 0 !important; }
 
+        /* ปรับแต่ง List View บนมือถือให้แสดงเป็นบล็อกสีทึบ */
+        .fc-list-event-graphic, .fc-list-event-time { display: none !important; }
+        .fc-list-event-title { padding: 4px 0 !important; border: none !important; }
+        .fc-list-event:hover td { background-color: transparent !important; }
+
         /* ====== Mobile UI Optimizations ====== */
         @media (max-width: 768px) {
             body { display: block; overflow-y: auto; background-color: #f8fafc; }
@@ -122,6 +127,14 @@
                 animation: slideUp 0.3s ease-out; margin: 0; max-width: 100%;
             }
             @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+            /* ปรับแต่งปฏิทินสำหรับมือถือโดยเฉพาะ */
+            .fc .fc-toolbar.fc-header-toolbar { flex-direction: column; gap: 12px; margin-bottom: 1rem !important; }
+            .fc .fc-toolbar-title { font-size: 1.25rem !important; }
+            .fc .fc-button-group { width: 100%; justify-content: center; }
+            .fc .fc-button { padding: 8px 12px !important; font-size: 12px !important; flex-grow: 1; }
+            .fc-list-event-title { padding: 12px !important; }
+            .fc-list-event-time { padding: 12px !important; width: auto !important; }
 
             /* Responsive Tables to Cards for Admin */
             table, thead, tbody, th, td, tr { display: block; width: 100%; }
@@ -791,12 +804,17 @@
         }
 
         function initCalendar() {
+            const isMobile = window.innerWidth < 768;
             const calendarEl = document.getElementById('calendar');
             calendar = new FullCalendar.Calendar(calendarEl, { 
-                initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth', 
+                initialView: isMobile ? 'listMonth' : 'dayGridMonth', 
                 locale: 'th', 
                 events: getCalendarEvents(),
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listMonth' },
+                headerToolbar: { 
+                    left: isMobile ? 'prev,next' : 'prev,next today', 
+                    center: 'title', 
+                    right: isMobile ? 'listMonth,dayGridMonth' : 'dayGridMonth,timeGridWeek,listMonth' 
+                },
                 eventDisplay: 'block',
                 displayEventTime: false,
                 eventClick: function(info) { showEventDetails(info.event.id); },
@@ -804,10 +822,12 @@
                     const statusLabel = arg.event.extendedProps.statusLabel;
                     const assetName = arg.event.extendedProps.assetName;
                     const userName = arg.event.extendedProps.userName;
+                    const bgColor = arg.event.backgroundColor;
 
+                    // สร้างโครงสร้าง HTML แยกสถานะ ชื่ออุปกรณ์ และผู้ยืมให้อ่านง่าย
                     return {
                         html: `
-                            <div class="custom-event-content">
+                            <div class="custom-event-content" style="background-color: ${bgColor}; border-radius: 8px;">
                                 <span class="custom-event-badge">${statusLabel}</span>
                                 <span class="custom-event-title">${assetName}</span>
                                 <span class="custom-event-user">👤 ${userName}</span>
