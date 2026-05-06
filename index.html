@@ -49,7 +49,7 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .btn-loading { pointer-events: none; opacity: 0.8; }
         
-        /* ปรับแต่งปฏิทินให้แสดงสถานะและชื่อได้เต็มที่ไม่ตกกรอบ */
+        /* ปรับแต่งปฏิทิน */
         .fc-event {
             border: none !important;
             border-radius: 8px !important;
@@ -95,34 +95,32 @@
         .fc-daygrid-event-dot { display: none !important; }
         .fc-event-main { padding: 0 !important; }
 
-        /* ปรับแต่ง List View บนมือถือให้แสดงเป็นบล็อกสีทึบ */
-        .fc-list-event-graphic, .fc-list-event-time { display: none !important; }
-        .fc-list-event-title { padding: 4px 0 !important; border: none !important; }
-        .fc-list-event:hover td { background-color: transparent !important; }
-
-        /* ====== Mobile UI Optimizations ====== */
+        /* ====== Mobile UI Optimizations (Bottom Nav) ====== */
         @media (max-width: 768px) {
-            body { display: block; overflow-y: auto; background-color: #f8fafc; }
+            body { display: block; overflow-y: auto; background-color: #f8fafc; height: auto; min-height: 100vh; min-height: 100dvh; }
+            
             .sidebar { 
                 position: fixed; top: 0; left: 0; right: 0; width: 100%; height: 70px;
                 padding: 10px 20px; border-bottom: 1px solid #e2e8f0; 
                 flex-direction: row !important; align-items: center !important; justify-content: space-between !important;
-                z-index: 40; background: white;
+                z-index: 40; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             }
             #connection-status { display: none !important; }
             
-            .content-area { padding: 90px 15px 90px 15px; height: auto; overflow: visible; }
+            /* เพิ่ม Padding ด้านล่างหลบ Bottom Nav */
+            .content-area { padding: 90px 15px 120px 15px; height: auto; overflow: visible; min-height: calc(100vh + 1px); }
             
             nav { 
                 position: fixed; bottom: 0; left: 0; right: 0; width: 100%; 
-                background: white; border-top: 1px solid #e2e8f0; z-index: 50; 
+                background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+                border-top: 1px solid #e2e8f0; z-index: 50; 
                 display: flex !important; flex-direction: row !important; justify-content: space-around !important; 
                 padding: 10px 5px; margin-top: 0;
                 padding-bottom: calc(10px + env(safe-area-inset-bottom));
                 box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
             }
-            .nav-btn { flex-direction: column !important; padding: 5px !important; width: 33%; text-align: center; margin-bottom: 0 !important; }
-            .nav-btn span { font-size: 11px; margin-top: 4px; display: block;}
+            .nav-btn { flex-direction: column !important; padding: 5px !important; width: 33.33%; text-align: center; margin-bottom: 0 !important; }
+            .nav-btn span.md\:hidden { font-size: 10px; margin-top: 4px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .nav-btn.active { background: transparent !important; color: var(--kmitl) !important; box-shadow: none !important; }
             .nav-btn i { margin: 0 auto; color: #94a3b8; }
             .nav-btn.active i { color: var(--kmitl); }
@@ -142,6 +140,11 @@
             .fc .fc-button { padding: 8px 12px !important; font-size: 12px !important; flex-grow: 1; }
             .fc-list-event-title { padding: 12px !important; }
             .fc-list-event-time { padding: 12px !important; width: auto !important; }
+
+            /* ปรับแต่ง List View มือถือ ให้เป็นบล็อกสีทึบ */
+            .fc-list-event-graphic, .fc-list-event-time { display: none !important; }
+            .fc-list-event-title { padding: 4px 0 !important; border: none !important; }
+            .fc-list-event:hover td { background-color: transparent !important; }
         }
     </style>
 </head>
@@ -191,15 +194,18 @@
         <nav class="flex-grow">
             <div class="nav-btn active" onclick="switchTab('dashboard', this)">
                 <i data-lucide="layout-grid" class="w-5 h-5"></i>
-                <span>ยืมอุปกรณ์</span>
+                <span class="hidden md:inline">ยืมอุปกรณ์</span>
+                <span class="md:hidden">ยืมอุปกรณ์</span>
             </div>
             <div class="nav-btn" onclick="switchTab('my-requests', this)">
                 <i data-lucide="clipboard-list" class="w-5 h-5"></i>
-                <span>รายการของฉัน</span>
+                <span class="hidden md:inline">รายการของฉัน</span>
+                <span class="md:hidden">รายการของฉัน</span>
             </div>
             <div class="nav-btn" onclick="switchTab('calendar-view', this)">
                 <i data-lucide="calendar" class="w-5 h-5"></i>
-                <span>ปฏิทินคิวอุปกรณ์</span>
+                <span class="hidden md:inline">ปฏิทินคิวอุปกรณ์</span>
+                <span class="md:hidden">ปฏิทินคิว</span>
             </div>
         </nav>
         
@@ -221,7 +227,7 @@
                 <!-- ระบบค้นหาอุปกรณ์ -->
                 <div class="relative w-full md:w-64">
                     <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"></i>
-                    <input type="text" id="search-input" oninput="filterAssets(this.value)" placeholder="ค้นหาอุปกรณ์..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm">
+                    <input type="text" id="search-input" oninput="filterAssets(this.value)" placeholder="ค้นหาอุปกรณ์..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm shadow-sm">
                 </div>
             </div>
             <div id="assets-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -239,7 +245,7 @@
                 <!-- ระบบค้นหารายการของฉัน -->
                 <div class="relative w-full md:w-64">
                     <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"></i>
-                    <input type="text" oninput="filterMyRequests(this.value)" placeholder="ค้นหาชื่ออุปกรณ์, สถานะ..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm">
+                    <input type="text" oninput="filterMyRequests(this.value)" placeholder="ค้นหาอุปกรณ์, สถานะ..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm shadow-sm">
                 </div>
             </div>
             <div class="card p-4 md:p-6">
@@ -275,7 +281,7 @@
                 
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-1">เบอร์โทรศัพท์ติดต่อ <span class="text-red-500">*</span></label>
-                    <input type="tel" id="book-phone" class="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100" placeholder="08x-xxx-xxxx" required>
+                    <input type="tel" id="book-phone" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100" placeholder="ระบุตัวเลขเท่านั้น (เช่น 0812345678)" required>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -521,7 +527,6 @@
             }
         }
 
-        // ฟังก์ชันสำหรับเปิด-ปิด Modal
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
@@ -695,6 +700,7 @@
             'rejected': { color: 'bg-red-100 text-red-700', label: 'ถูกปฏิเสธ' }
         };
 
+        // --- ระบบค้นหารายการของฉัน ---
         window.filterMyRequests = function(query) {
             currentMyRequestsQuery = query;
             renderMyRequests();
@@ -852,7 +858,8 @@
 
         function initCalendar() {
             const isMobile = window.innerWidth < 768;
-            calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+            const calendarEl = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, { 
                 initialView: isMobile ? 'listMonth' : 'dayGridMonth', 
                 locale: 'th', 
                 events: getCalendarEvents(),
