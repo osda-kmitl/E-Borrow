@@ -102,17 +102,31 @@
             .fc-list-event-title { padding: 4px 0 !important; border: none !important; }
             .fc-list-event:hover td { background-color: transparent !important; }
 
-            table, thead, tbody, th, td, tr { display: block; width: 100%; }
-            thead tr { display: none; }
-            table { min-width: 100% !important; border: none !important; }
-            tr { border: 1px solid #e2e8f0; border-radius: 16px; margin-bottom: 16px; background: white; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-            td { display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; padding: 6px 0 !important; border: none !important; text-align: left; }
-            td::before { content: attr(data-label); font-weight: 800; color: #64748b; font-size: 10px; text-transform: uppercase; margin-bottom: 4px; display: block; width: 100%; }
-            td > div, td > p { text-align: left; margin: 0; width: 100%; justify-content: flex-start; }
+            /* Responsive Tables to Cards for Admin - จำกัดขอบเขตไม่ให้กระทบปฏิทิน */
+            #tab-requests table, #tab-history table, #tab-manage-admins table,
+            #tab-requests thead, #tab-history thead, #tab-manage-admins thead,
+            #tab-requests tbody, #tab-history tbody, #tab-manage-admins tbody,
+            #tab-requests th, #tab-history th, #tab-manage-admins th,
+            #tab-requests td, #tab-history td, #tab-manage-admins td,
+            #tab-requests tr, #tab-history tr, #tab-manage-admins tr { display: block; width: 100%; }
+            
+            #tab-requests thead tr, #tab-history thead tr, #tab-manage-admins thead tr { display: none; }
+            
+            #tab-requests table, #tab-history table, #tab-manage-admins table { min-width: 100% !important; border: none !important; }
+            
+            #tab-requests tr, #tab-history tr, #tab-manage-admins tr { border: 1px solid #e2e8f0; border-radius: 16px; margin-bottom: 16px; background: white; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+            
+            #tab-requests td, #tab-history td, #tab-manage-admins td { display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; padding: 6px 0 !important; border: none !important; text-align: left; }
+            
+            #tab-requests td::before, #tab-history td::before, #tab-manage-admins td::before { content: attr(data-label); font-weight: 800; color: #64748b; font-size: 10px; text-transform: uppercase; margin-bottom: 4px; display: block; width: 100%; }
+            
+            #tab-requests td > div, #tab-requests td > p, #tab-history td > div, #tab-history td > p, #tab-manage-admins td > div, #tab-manage-admins td > p { text-align: left; margin: 0; width: 100%; justify-content: flex-start; }
+            
             td.flex { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px;}
             .justify-end { justify-content: flex-start !important; }
             .card.overflow-x-auto { padding: 0px; background: transparent; border: none; box-shadow: none;} 
-            tbody tr td:last-child { margin-top: 10px; padding-top: 15px !important; border-top: 1px dashed #e2e8f0 !important; }
+            
+            #tab-requests tbody tr td:last-child, #tab-history tbody tr td:last-child, #tab-manage-admins tbody tr td:last-child { margin-top: 10px; padding-top: 15px !important; border-top: 1px dashed #e2e8f0 !important; }
         }
     </style>
 </head>
