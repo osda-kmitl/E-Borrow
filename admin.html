@@ -678,7 +678,10 @@
                 
                 let actionBtn = '';
                 if (!isMain && currentUserRole === 'Main Admin') {
-                    actionBtn = `<button onclick="transferMainAdmin('${a.id}', '${a.email}')" class="text-[10px] bg-orange-50 text-orange-600 px-3 py-1.5 rounded font-bold hover:bg-orange-500 hover:text-white transition-colors border border-orange-200">มอบสิทธิ์ Main Admin</button>`;
+                    actionBtn = `
+                        <button onclick="transferMainAdmin('${a.id}', '${a.email}')" class="text-[10px] bg-orange-50 text-orange-600 px-3 py-1.5 rounded font-bold hover:bg-orange-500 hover:text-white transition-colors border border-orange-200">มอบสิทธิ์ Main Admin</button>
+                        <button onclick="removeAdmin('${a.id}', '${a.email}')" class="text-[10px] bg-red-50 text-red-600 px-3 py-1.5 rounded font-bold hover:bg-red-500 hover:text-white transition-colors border border-red-200">ลบสิทธิ์</button>
+                    `;
                 }
 
                 return `
@@ -720,6 +723,19 @@
 
             btn.classList.remove('btn-loading');
             btn.querySelector('.loader').style.display = 'none';
+        }
+
+        window.removeAdmin = async function(targetDocId, targetEmail) {
+            if (currentUserRole !== 'Main Admin') return;
+            if (!confirm(`ยืนยันการถอดถอนสิทธิ์ Co-Admin ของ ${targetEmail} หรือไม่?\n\n*ผู้ใช้นี้จะไม่สามารถเข้าถึงระบบหลังบ้านได้อีก*`)) return;
+
+            try {
+                await deleteDoc(doc(db, 'artifacts', myAppId, 'public', 'data', 'adminRoles', targetDocId));
+                showToast(`ถอดถอนสิทธิ์ของ ${targetEmail} สำเร็จ`);
+            } catch (e) {
+                console.error(e);
+                showToast('เกิดข้อผิดพลาดในการลบสิทธิ์', 'error');
+            }
         }
 
         window.transferMainAdmin = async function(targetDocId, targetEmail) {
