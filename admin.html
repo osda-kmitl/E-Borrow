@@ -210,6 +210,7 @@
 
     <div class="content-area">
         
+        <!-- Tab 1: Assets -->
         <div id="tab-assets" class="tab-content block">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div>
@@ -217,6 +218,7 @@
                     <p class="text-slate-500 mt-1">จัดการรายการอุปกรณ์ทั้งหมดในระบบ</p>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <!-- ระบบค้นหาอุปกรณ์ (Admin) -->
                     <div class="relative w-full sm:w-64">
                         <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"></i>
                         <input type="text" oninput="filterAssets(this.value)" placeholder="ค้นหาอุปกรณ์..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm shadow-sm">
@@ -231,6 +233,7 @@
             </div>
         </div>
 
+        <!-- Tab 2: Requests -->
         <div id="tab-requests" class="tab-content hidden">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
@@ -260,6 +263,7 @@
             </div>
         </div>
 
+        <!-- Tab 3: Calendar -->
         <div id="tab-calendar-view" class="tab-content hidden">
             <div class="mb-6">
                 <h2 class="text-2xl font-black text-slate-800">ปฏิทินการยืม</h2>
@@ -270,8 +274,9 @@
             </div>
         </div>
 
+        <!-- Tab 4: History -->
         <div id="tab-history" class="tab-content hidden">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h2 class="text-2xl font-black text-slate-800">ประวัติการทำรายการ</h2>
                     <p class="text-slate-500 mt-1">รายการยืม-คืนที่เสร็จสิ้นแล้วทั้งหมด</p>
@@ -332,6 +337,7 @@
 
     </div>
 
+    <!-- Modals -->
     <div id="add-asset-modal" class="modal">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
@@ -359,6 +365,18 @@
         </div>
     </div>
 
+    <!-- Event Detail Modal (แสดงรายละเอียด & รูปถ่ายยืนยัน) -->
+    <div id="event-detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-black text-slate-800">รายละเอียดการยืม</h3>
+                <button onclick="closeModal('event-detail-modal')" class="text-slate-400 hover:text-red-500"><i data-lucide="x"></i></button>
+            </div>
+            <div id="event-detail-content" class="space-y-4"></div>
+            <button onclick="closeModal('event-detail-modal')" class="w-full mt-6 bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">ปิดหน้าต่าง</button>
+        </div>
+    </div>
+
     <div id="invite-admin-modal" class="modal">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
@@ -378,17 +396,7 @@
         </div>
     </div>
 
-    <div id="event-detail-modal" class="modal">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-black text-slate-800">รายละเอียดการยืม</h3>
-                <button onclick="closeModal('event-detail-modal')" class="text-slate-400 hover:text-red-500"><i data-lucide="x"></i></button>
-            </div>
-            <div id="event-detail-content" class="space-y-4"></div>
-            <button onclick="closeModal('event-detail-modal')" class="w-full mt-6 bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">ปิดหน้าต่าง</button>
-        </div>
-    </div>
-
+    <!-- Modal ยืนยันการล้างประวัติ -->
     <div id="clear-history-modal" class="modal">
         <div class="modal-content text-center">
             <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -460,23 +468,27 @@
         async function sendEmailNotification(toEmail, subject, htmlMessage) {
             const scriptUrl = 'https://script.google.com/macros/s/AKfycbyAzTWFeYOlrZ2_cAbOuuiXVUlZ91DGFaW5gYLtrcOlwi5kosAqkfMnn9rmmB7bXsWJ/exec';
             try {
+                // ใช้รูปแบบ URLSearchParams (เสมือนการส่ง Form ทั่วไป) ป้องกันปัญหาการตั้งค่า CORS ของบราวเซอร์
+                const params = new URLSearchParams();
+                params.append('to_email', toEmail);
+                params.append('subject', subject);
+                params.append('message', htmlMessage);
+
                 await fetch(scriptUrl, {
                     method: 'POST',
-                    body: JSON.stringify({
-                        to_email: toEmail,
-                        subject: subject,
-                        message: htmlMessage
-                    }),
+                    body: params,
+                    mode: 'no-cors', // คำสั่งสำคัญที่ทำให้สามารถส่งข้อมูลทะลุไปถึง Google Script ได้
                     headers: {
-                        "Content-Type": "text/plain;charset=utf-8" 
+                        'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 });
-                console.log('ระบบส่งอีเมลแจ้งเตือนสำเร็จ!');
+                console.log('ระบบพยายามส่งอีเมลแจ้งเตือนแล้ว');
             } catch(err) {
                 console.error('ส่งอีเมลแจ้งเตือนไม่สำเร็จ:', err);
             }
         }
 
+        // ฟังก์ชันแปลงรูปแบบเวลาเป็น วัน-เดือน-ปี ชั่วโมง:นาที น.
         function formatThaiDateTime(dateStr) {
             if (!dateStr) return '-';
             if (dateStr.includes(' น.')) return dateStr.replace(' น.', '&nbsp;น.');
@@ -511,7 +523,6 @@
                     await signInAnonymously(auth);
                 }
             } catch (error) {
-                // ซ่อนการแสดงผล Auth error และเข้าสู่โหมด Anonymous แบบเงียบๆ
                 if (isLocalHost || isCanvasEnv) {
                     try {
                         await signInAnonymously(auth);
@@ -556,7 +567,7 @@
             } else {
                 user = null;
                 currentUserRole = null;
-                unsubscribeAll(); // ยกเลิกการดึงข้อมูลเพื่อป้องกัน Error permission-denied
+                unsubscribeAll();
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('connection-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span> รอการเข้าสู่ระบบ`;
             }

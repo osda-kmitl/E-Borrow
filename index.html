@@ -20,15 +20,15 @@
         * { font-family: 'Sarabun', sans-serif; box-sizing: border-box; }
         body { background: #f8fafc; display: flex; height: 100vh; overflow: hidden; }
         
-        .sidebar { width: 260px; background: white; border-right: 1px solid #e2e8f0; padding: 25px; display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar { width: 260px; background: white; border-right: 1px solid #e2e8f0; padding: 25px; display: flex; flex-direction: column; flex-shrink: 0; z-index: 40; }
         .nav-btn { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-radius: 12px; color: #64748b; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 8px; }
         .nav-btn:hover { background: #f1f5f9; color: #0f172a; }
         .nav-btn.active { background: var(--kmitl); color: white; box-shadow: 0 4px 12px rgba(255, 102, 0, 0.2); }
         
-        .content-area { flex-grow: 1; padding: 40px; overflow-y: auto; }
+        .content-area { flex-grow: 1; padding: 40px; overflow-y: auto; position: relative; }
         .card { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
         
-        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 50; align-items: center; justify-content: center; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 60; align-items: center; justify-content: center; padding: 16px; }
         .modal.active { display: flex; }
         .modal-content { background: white; border-radius: 24px; width: 100%; max-width: 450px; padding: 32px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); max-height: 90vh; overflow-y: auto; }
 
@@ -117,7 +117,7 @@
                 padding-bottom: calc(10px + env(safe-area-inset-bottom));
                 box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
             }
-            .nav-btn { flex-direction: column !important; padding: 5px !important; width: 33.33%; text-align: center; margin-bottom: 0 !important; }
+            .nav-btn { flex-direction: column !important; padding: 5px !important; flex: 1; text-align: center; margin-bottom: 0 !important; min-width: 0; }
             .nav-btn span.md\:hidden { font-size: 10px; margin-top: 4px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .nav-btn.active { background: transparent !important; color: var(--kmitl) !important; box-shadow: none !important; }
             .nav-btn i { margin: 0 auto; color: #94a3b8; }
@@ -164,8 +164,8 @@
 
     <!-- Sidebar -->
     <div class="sidebar flex-row justify-between items-center md:flex-col md:items-start md:justify-start">
-        <div class="flex items-center gap-3 mb-0 md:mb-10 w-auto">
-            <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+        <div class="flex items-center gap-3 mb-0 md:mb-10 w-auto shrink-0">
+            <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600 shrink-0">
                 <i data-lucide="monitor-smartphone"></i>
             </div>
             <div>
@@ -180,11 +180,11 @@
             <div class="w-10 h-10 md:w-16 md:h-16 rounded-full mx-auto md:mb-3 bg-slate-200 overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
                 <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=random" class="w-full h-full object-cover">
             </div>
-            <div class="hidden md:block">
+            <div class="hidden md:block min-w-0">
                 <h3 id="user-display-name" class="font-bold text-slate-800 text-sm truncate">กำลังโหลด...</h3>
                 <p id="user-email" class="text-[10px] text-slate-500 truncate">-</p>
             </div>
-            <button onclick="logout()" class="text-red-500 md:mt-3 md:text-xs md:bg-red-50 md:px-3 md:py-1.5 md:rounded-lg font-bold md:hover:bg-red-500 md:hover:text-white transition-colors w-auto md:w-full p-2 md:p-0" title="ออกจากระบบ"><i data-lucide="log-out" class="w-5 h-5 md:hidden"></i><span class="hidden md:inline">ออกจากระบบ</span></button>
+            <button onclick="logout()" class="text-red-500 md:mt-3 md:text-xs md:bg-red-50 md:px-3 md:py-1.5 md:rounded-lg font-bold md:hover:bg-red-500 md:hover:text-white transition-colors w-auto md:w-full p-2 md:p-0 shrink-0" title="ออกจากระบบ"><i data-lucide="log-out" class="w-5 h-5 md:hidden"></i><span class="hidden md:inline">ออกจากระบบ</span></button>
         </div>
 
         <nav class="flex-grow">
@@ -219,6 +219,7 @@
                     <h2 class="text-2xl font-black text-slate-800">อุปกรณ์ที่สามารถยืมได้</h2>
                     <p class="text-slate-500 mt-1">เลือกระบุเวลาและจองอุปกรณ์ล่วงหน้า</p>
                 </div>
+                <!-- ระบบค้นหาอุปกรณ์ -->
                 <div class="relative w-full md:w-64">
                     <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"></i>
                     <input type="text" id="search-input" oninput="filterAssets(this.value)" placeholder="ค้นหาอุปกรณ์..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm shadow-sm">
@@ -236,6 +237,7 @@
                     <h2 class="text-2xl font-black text-slate-800">รายการยืมของฉัน</h2>
                     <p class="text-slate-500 mt-1">ติดตามสถานะการจอง ถ่ายรูปยืนยันเมื่อรับอุปกรณ์</p>
                 </div>
+                <!-- ระบบค้นหารายการของฉัน -->
                 <div class="relative w-full md:w-64">
                     <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"></i>
                     <input type="text" oninput="filterMyRequests(this.value)" placeholder="ค้นหาอุปกรณ์, สถานะ..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm shadow-sm">
@@ -347,7 +349,7 @@
         // ==========================================
         // 🔧 ตั้งค่า FIREBASE ของคุณ
         // ==========================================
-        const firebaseConfig = {
+        const myFirebaseConfig = {
             apiKey: "AIzaSyDJR7Krbe6cMBfQr2HkVshpE8JgxnPzBcQ",
             authDomain: "osda-system.firebaseapp.com",
             projectId: "osda-system",
@@ -356,7 +358,11 @@
             appId: "1:207457868371:web:8fa412794c6f52171b84a6",
             measurementId: "G-G8DZNHYQM4"
         };
-        const myAppId = typeof __app_id !== 'undefined' ? __app_id : "osda-system-app";
+        
+        const isCanvasEnv = typeof __firebase_config !== 'undefined' && __firebase_config;
+        const firebaseConfig = isCanvasEnv ? JSON.parse(__firebase_config) : myFirebaseConfig;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : "osda-system-app";
+        const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
 
         let app, auth, db, user;
         try {
@@ -377,28 +383,27 @@
         let fpStart = null;
         let fpEnd = null;
 
-        const isCanvasEnv = typeof __firebase_config !== 'undefined' && __firebase_config;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : myAppId;
-        const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
-
         // ==========================================
         // ฟังก์ชันส่งอีเมลผ่าน Google Apps Script
         // ==========================================
         async function sendEmailNotification(toEmail, subject, htmlMessage) {
             const scriptUrl = 'https://script.google.com/macros/s/AKfycbyAzTWFeYOlrZ2_cAbOuuiXVUlZ91DGFaW5gYLtrcOlwi5kosAqkfMnn9rmmB7bXsWJ/exec';
             try {
+                // ใช้รูปแบบ URLSearchParams (เสมือนการส่ง Form ทั่วไป) ป้องกันปัญหาการตั้งค่า CORS ของบราวเซอร์
+                const params = new URLSearchParams();
+                params.append('to_email', toEmail);
+                params.append('subject', subject);
+                params.append('message', htmlMessage);
+
                 await fetch(scriptUrl, {
                     method: 'POST',
-                    body: JSON.stringify({
-                        to_email: toEmail,
-                        subject: subject,
-                        message: htmlMessage
-                    }),
+                    body: params,
+                    mode: 'no-cors', // คำสั่งสำคัญที่ทำให้สามารถส่งข้อมูลทะลุไปถึง Google Script ได้
                     headers: {
-                        "Content-Type": "text/plain;charset=utf-8" 
+                        'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 });
-                console.log('ระบบส่งอีเมลแจ้งเตือนสำเร็จ!');
+                console.log('ระบบพยายามส่งอีเมลแจ้งเตือนแล้ว');
             } catch(err) {
                 console.error('ส่งอีเมลแจ้งเตือนไม่สำเร็จ:', err);
             }
@@ -426,6 +431,7 @@
         const provider = new GoogleAuthProvider();
         provider.setCustomParameters({ hd: 'kmitl.ac.th' });
 
+        // เชื่อมต่อระบบพร้อมดัก Error
         async function initAuth() {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -434,7 +440,7 @@
                     await signInAnonymously(auth);
                 }
             } catch (error) {
-                // ซ่อนการแสดงผล Auth error และเข้าสู่โหมด Anonymous แบบเงียบๆ
+                // ซ่อนการแสดงผล Auth error และเข้าสู่โหมด Anonymous แบบเงียบๆ บน Canvas
                 if (isLocalHost || isCanvasEnv) {
                     try {
                         await signInAnonymously(auth);
@@ -444,8 +450,10 @@
             }
         }
 
+        // เชื่อมต่อระบบ (ดักจับสถานะ Auth)
         onAuthStateChanged(auth, (u) => {
             if (u) {
+                // ตรวจสอบโดเมน 
                 const isCanvasToken = typeof __initial_auth_token !== 'undefined' && __initial_auth_token;
                 if (!isCanvasToken && !u.isAnonymous && u.email && !u.email.endsWith('@kmitl.ac.th')) {
                     signOut(auth);
@@ -534,9 +542,11 @@
             }
         }
 
+        // ฟังก์ชันสำหรับเปิด-ปิด Modal
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
+        // --- ระบบค้นหา ---
         window.filterAssets = function(query) {
             currentSearchQuery = query;
             renderAssets(query);
@@ -545,6 +555,7 @@
         function renderAssets(searchQuery = '') {
             const grid = document.getElementById('assets-grid');
             
+            // กรองข้อมูลจากชื่อหรือรายละเอียด
             const filteredAssets = assets.filter(a => {
                 const term = searchQuery.toLowerCase();
                 return a.name.toLowerCase().includes(term) || (a.desc && a.desc.toLowerCase().includes(term));
@@ -769,9 +780,10 @@
                 
                 let actionBtn = '';
                 if(b.status === 'pending') {
+                    // ปุ่มสำหรับยกเลิกคำขอ
                     actionBtn = `<button onclick="cancelBooking('${b.id}')" class="mt-3 w-full bg-red-50 text-red-500 font-bold py-2 rounded-lg text-xs hover:bg-red-500 hover:text-white transition-colors border border-red-100">ยกเลิกคำขอ</button>`;
                 } else if(b.status === 'approved') {
-                    actionBtn = `<button onclick="openCameraModal('${b.id}')" class="mt-3 w-full bg-green-500 text-white font-bold py-2 rounded-lg text-xs hover:bg-green-600 transition-colors flex items-center justify-center gap-1 shadow-sm"><i data-lucide="camera" class="w-4 h-4"></i> ยืนยันรับอุปกรณ์ (ถ่ายรูป)</button>`;
+                    actionBtn = `<button onclick="openCameraModal('${b.id}')" class="mt-3 w-full bg-green-500 text-white font-bold py-2 rounded-lg text-xs hover:bg-green-600 transition-colors flex items-center justify-center gap-1 shadow-sm"><i data-lucide="camera" class="w-4 h-4"></i> ยืนยันรับอุปกรณ์ (ถ่าย/อัปโหลดรูป)</button>`;
                 }
 
                 return `
@@ -790,10 +802,13 @@
                         ${actionBtn}
                     </div>
                 </div>`;
-            }).join('') || '<p class="py-10 text-slate-400 font-bold text-center">คุณยังไม่มีรายการทำจอง</p>';
+            }).join('') || `<p class="py-10 text-slate-400 font-bold text-center">${currentMyRequestsQuery ? 'ไม่พบรายการที่ค้นหา' : 'คุณยังไม่มีรายการทำจอง'}</p>`;
             if(window.lucide) lucide.createIcons();
         }
 
+        // ==========================================
+        // ระบบถ่ายรูปยืนยัน (Native Mobile Camera & Upload)
+        // ==========================================
         let currentCapturedImage = null;
         let confirmBookingId = null;
 
@@ -801,9 +816,11 @@
             confirmBookingId = bookingId;
             currentCapturedImage = null;
             document.getElementById('camera-file-input').value = ""; 
+
             document.getElementById('camera-preview-img').src = '';
             document.getElementById('camera-preview-img').classList.add('hidden');
             document.getElementById('camera-ui-prompt').classList.remove('hidden');
+
             openModal('camera-modal');
         }
 
@@ -825,7 +842,9 @@
                         canvas.height = img.height * scale;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        
                         currentCapturedImage = canvas.toDataURL('image/jpeg', 0.7);
+                        
                         document.getElementById('camera-preview-img').src = currentCapturedImage;
                         document.getElementById('camera-preview-img').classList.remove('hidden');
                         document.getElementById('camera-ui-prompt').classList.add('hidden');
@@ -862,22 +881,36 @@
 
         function getCalendarEvents() {
             const stLabel = {
-                'pending': 'รออนุมัติ', 'approved': 'รอรับของ', 'borrowed': 'กำลังยืม',
-                'returned': 'คืนแล้ว', 'rejected': 'ปฏิเสธ', 'cancelled': 'ยกเลิกแล้ว'
+                'pending': 'รออนุมัติ',
+                'approved': 'รอรับของ',
+                'borrowed': 'กำลังยืม',
+                'returned': 'คืนแล้ว',
+                'rejected': 'ปฏิเสธ',
+                'cancelled': 'ยกเลิกแล้ว'
             };
+            
             return bookings.map(b => {
                 const assetName = assets.find(a => a.id === b.assetId)?.name || 'อุปกรณ์ถูกลบ';
+                
                 let bgColor = '#f59e0b';
                 if (b.status === 'approved') bgColor = '#0ea5e9';
                 if (b.status === 'borrowed') bgColor = '#4f46e5';
                 if (b.status === 'returned') bgColor = '#10b981';
                 if (b.status === 'rejected') bgColor = '#ef4444';
-                if (b.status === 'cancelled') bgColor = '#94a3b8';
+                if (b.status === 'cancelled') bgColor = '#94a3b8'; // สีเทาสำหรับยกเลิก
                 
                 return { 
-                    id: b.id, title: `${assetName} (${b.user})`, start: b.start, end: b.end, 
-                    backgroundColor: bgColor, borderColor: 'transparent',
-                    extendedProps: { statusLabel: stLabel[b.status] || b.status, assetName: assetName, userName: b.user }
+                    id: b.id,
+                    title: `${assetName} (${b.user})`, 
+                    start: b.start, 
+                    end: b.end, 
+                    backgroundColor: bgColor, 
+                    borderColor: 'transparent',
+                    extendedProps: {
+                        statusLabel: stLabel[b.status] || b.status,
+                        assetName: assetName,
+                        userName: b.user
+                    }
                 };
             });
         }
@@ -886,17 +919,18 @@
             const calendarEl = document.getElementById('calendar');
             calendar = new FullCalendar.Calendar(calendarEl, { 
                 initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth', 
-                locale: 'th', events: getCalendarEvents(),
+                locale: 'th', 
+                events: getCalendarEvents(),
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listMonth' },
-                eventDisplay: 'block', displayEventTime: false,
                 eventClick: function(info) { showEventDetails(info.event.id); },
                 eventContent: function(arg) {
                     const statusLabel = arg.event.extendedProps.statusLabel;
                     const assetName = arg.event.extendedProps.assetName;
                     const userName = arg.event.extendedProps.userName;
+
                     return {
                         html: `
-                            <div class="custom-event-content" style="background-color: ${arg.event.backgroundColor}; border-radius: 8px;">
+                            <div class="custom-event-content">
                                 <span class="custom-event-badge">${statusLabel}</span>
                                 <span class="custom-event-title">${assetName}</span>
                                 <span class="custom-event-user">👤 ${userName}</span>
@@ -915,8 +949,10 @@
             const st = statusConfig[b.status] || { color: 'bg-slate-100', label: b.status };
 
             const photoHTML = b.confirmationImage 
-                ? `<div class="col-span-2 mt-2"><p class="text-[10px] font-bold text-slate-400 uppercase mb-2">รูปถ่ายยืนยันรับอุปกรณ์</p><img src="${b.confirmationImage}" class="w-full rounded-xl border border-slate-200"></div>` : '';
+                ? `<div class="col-span-2 mt-2"><p class="text-[10px] font-bold text-slate-400 uppercase mb-2">รูปถ่ายยืนยันรับอุปกรณ์</p><img src="${b.confirmationImage}" class="w-full rounded-xl border border-slate-200"></div>`
+                : '';
 
+            // สร้าง Timeline HTML เพื่อบอกประวัติเวลา
             const timelineHTML = `
                 <div class="col-span-2 mt-2 p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <p class="text-[11px] font-bold text-slate-800 mb-3 flex items-center gap-2">
