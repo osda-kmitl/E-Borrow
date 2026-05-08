@@ -102,7 +102,6 @@
             .fc-list-event-title { padding: 4px 0 !important; border: none !important; }
             .fc-list-event:hover td { background-color: transparent !important; }
 
-            /* Responsive Tables to Cards for Admin - จำกัดขอบเขตไม่ให้กระทบปฏิทิน */
             #tab-requests table, #tab-history table, #tab-manage-admins table,
             #tab-requests thead, #tab-history thead, #tab-manage-admins thead,
             #tab-requests tbody, #tab-history tbody, #tab-manage-admins tbody,
@@ -147,7 +146,6 @@
         </div>
     </div>
 
-    <!-- Sidebar / Mobile Header -->
     <div class="sidebar flex-row justify-between items-center md:flex-col md:items-start md:justify-start">
         <div class="flex items-center gap-3 mb-0 md:mb-10 w-auto shrink-0">
             <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600 shrink-0">
@@ -195,12 +193,10 @@
             <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span> รอการเข้าสู่ระบบ...
         </div>
 
-        <!-- Admin Info & Logout -->
         <div class="md:mt-auto md:pt-6 md:border-t border-slate-100 flex items-center gap-3 md:bg-slate-50 md:p-3 md:rounded-xl w-auto md:w-full">
             <div class="w-8 h-8 rounded-full bg-slate-300 overflow-hidden hidden md:block shrink-0">
                 <img id="admin-avatar" src="https://ui-avatars.com/api/?name=Admin&background=random" class="w-full h-full object-cover">
             </div>
-            <!-- ใส่ min-w-0 เพื่อแก้ปัญหา overflow หลุดกรอบในคอมพิวเตอร์ -->
             <div class="flex-grow overflow-hidden hidden md:block min-w-0" id="admin-info-desktop">
                 <p class="text-xs font-bold text-slate-800 truncate" id="admin-name">Admin User</p>
                 <p class="text-[10px] text-slate-500 truncate" id="admin-email">admin@kmitl.ac.th</p>
@@ -212,7 +208,6 @@
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="content-area">
         
         <div id="tab-assets" class="tab-content block">
@@ -237,17 +232,17 @@
         </div>
 
         <div id="tab-requests" class="tab-content hidden">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h2 class="text-2xl font-black text-slate-800">จัดการคำขอยืม</h2>
                     <p class="text-slate-500 mt-1">อนุมัติและจัดการสถานะการยืม-คืนอุปกรณ์</p>
                 </div>
                 <div class="relative w-full md:w-72">
                     <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"></i>
-                    <input type="text" oninput="filterRequests(this.value)" placeholder="ค้นหาผู้ยืม, อุปกรณ์, เบอร์โทร..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm shadow-sm">
+                    <input type="text" oninput="filterRequests(this.value)" placeholder="ค้นหาชื่อผู้ยืม, อุปกรณ์, เบอร์โทร..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm shadow-sm">
                 </div>
             </div>
-            <div class="card overflow-x-auto">
+            <div class="card overflow-x-auto p-0">
                 <table class="w-full text-left min-w-[700px]">
                     <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider font-bold">
                         <tr>
@@ -271,12 +266,12 @@
                 <p class="text-slate-500 mt-1">ภาพรวมการใช้งานอุปกรณ์ทั้งหมด</p>
             </div>
             <div class="card p-2 md:p-6">
-                <div id="calendar" class="min-h-[400px] md:min-h-[500px]"></div>
+                <div id="calendar" class="min-h-[500px]"></div>
             </div>
         </div>
 
         <div id="tab-history" class="tab-content hidden">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                 <div>
                     <h2 class="text-2xl font-black text-slate-800">ประวัติการทำรายการ</h2>
                     <p class="text-slate-500 mt-1">รายการยืม-คืนที่เสร็จสิ้นแล้วทั้งหมด</p>
@@ -284,21 +279,21 @@
                 <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                     <div class="relative w-full sm:w-72">
                         <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"></i>
-                        <input type="text" oninput="filterHistory(this.value)" placeholder="ค้นหาผู้ยืม, อุปกรณ์, เบอร์โทร..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm shadow-sm">
+                        <input type="text" oninput="filterHistory(this.value)" placeholder="ค้นหาชื่อผู้ยืม, อุปกรณ์, เบอร์โทร..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm shadow-sm">
                     </div>
                     <button onclick="openModal('clear-history-modal')" class="bg-red-50 text-red-600 hover:bg-red-500 hover:text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i> ล้างประวัติ
+                        <i data-lucide="trash-2" class="w-4 h-4"></i> ล้างประวัติทั้งหมด
                     </button>
                 </div>
             </div>
-            <div class="card overflow-x-auto">
+            <div class="card overflow-x-auto p-0">
                 <table class="w-full text-left min-w-[700px]">
                     <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider font-bold">
                         <tr>
                             <th class="p-4">อุปกรณ์</th>
-                            <th class="p-4">ผู้ยืม / เบอร์ติดต่อ</th>
+                            <th class="p-4">ผู้ยืม</th>
                             <th class="p-4">วันที่ยืม</th>
-                            <th class="p-4">วันที่คืนจริง</th>
+                            <th class="p-4">อัปเดตล่าสุด</th>
                             <th class="p-4">ผลลัพธ์</th>
                         </tr>
                     </thead>
@@ -459,6 +454,29 @@
         let unsubBookings = null;
         let unsubAdmins = null;
 
+        // ==========================================
+        // ฟังก์ชันส่งอีเมลผ่าน Google Apps Script
+        // ==========================================
+        async function sendEmailNotification(toEmail, subject, htmlMessage) {
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbyAzTWFeYOlrZ2_cAbOuuiXVUlZ91DGFaW5gYLtrcOlwi5kosAqkfMnn9rmmB7bXsWJ/exec';
+            try {
+                await fetch(scriptUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        to_email: toEmail,
+                        subject: subject,
+                        message: htmlMessage
+                    }),
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8" 
+                    }
+                });
+                console.log('ระบบส่งอีเมลแจ้งเตือนสำเร็จ!');
+            } catch(err) {
+                console.error('ส่งอีเมลแจ้งเตือนไม่สำเร็จ:', err);
+            }
+        }
+
         function formatThaiDateTime(dateStr) {
             if (!dateStr) return '-';
             if (dateStr.includes(' น.')) return dateStr.replace(' น.', '&nbsp;น.');
@@ -470,7 +488,7 @@
                 const year = dateObj.getFullYear();
                 const hours = String(dateObj.getHours()).padStart(2, '0');
                 const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-                return `${day}-${month}-${year} ${hours}:${minutes}&nbsp;น.`;
+                return `${day}-${month}-${year} ${hours}:${minutes} น.`;
             } catch (e) {
                 return dateStr;
             }
@@ -493,7 +511,13 @@
                     await signInAnonymously(auth);
                 }
             } catch (error) {
-                console.error("Auth error:", error);
+                // ซ่อนการแสดงผล Auth error และเข้าสู่โหมด Anonymous แบบเงียบๆ
+                if (isLocalHost || isCanvasEnv) {
+                    try {
+                        await signInAnonymously(auth);
+                    } catch (fallbackError) {
+                    }
+                }
             }
         }
 
@@ -836,11 +860,44 @@
             if(!user) return;
             try {
                 const updateData = { status: newStatus };
-                if(newStatus === 'returned' || newStatus === 'rejected') {
-                    updateData.returnDate = formatThaiDateTime(new Date().toISOString());
+                const now = new Date().toISOString();
+
+                if (newStatus === 'approved') {
+                    updateData.approvedAt = now;
+                } else if (newStatus === 'borrowed') {
+                    updateData.receiveDate = now;
+                } else if (newStatus === 'rejected') {
+                    updateData.rejectedAt = now;
+                    updateData.returnDate = now;
+                } else if (newStatus === 'returned') {
+                    updateData.returnDate = now;
                 }
+
                 await updateDoc(doc(db, 'artifacts', myAppId, 'public', 'data', 'bookings', id), updateData);
                 showToast(`อัปเดตสถานะสำเร็จ`);
+
+                // ส่งอีเมลแจ้งเตือนกลับไปยังผู้ใช้ (เมื่อกดอนุมัติ)
+                if (newStatus === 'approved') {
+                    const b = bookings.find(x => x.id === id);
+                    if (b && b.userEmail) {
+                        const a = assets.find(x => x.id === b.assetId);
+                        const assetName = a ? a.name : 'อุปกรณ์';
+                        const subject = `✅ อนุมัติคำขอยืมอุปกรณ์: ${assetName}`;
+                        const body = `
+                            <div style="font-family: sans-serif; color: #333;">
+                                <h2 style="color: #FF6600;">คำขอยืมอุปกรณ์ของคุณได้รับการอนุมัติแล้ว 🎉</h2>
+                                <p><strong>ผู้ยืม:</strong> ${b.user}</p>
+                                <p><strong>อุปกรณ์:</strong> ${assetName}</p>
+                                <p><strong>เวลารับของ:</strong> ${formatThaiDateTime(b.start)}</p>
+                                <p><strong>เวลาคืนของ:</strong> ${formatThaiDateTime(b.end)}</p>
+                                <br>
+                                <p>กรุณามารับอุปกรณ์ตามเวลาที่กำหนด และถ่ายรูปยืนยันในระบบเมื่อรับของเรียบร้อยแล้วครับ</p>
+                            </div>
+                        `;
+                        sendEmailNotification(b.userEmail, subject, body);
+                    }
+                }
+
             } catch (error) {
                 console.error(error);
                 showToast('อัปเดตไม่สำเร็จ', 'error');
@@ -880,7 +937,8 @@
             'approved': { color: 'bg-blue-100 text-blue-700', label: 'รอรับอุปกรณ์' },
             'borrowed': { color: 'bg-indigo-100 text-indigo-700', label: 'กำลังยืม' },
             'returned': { color: 'bg-green-100 text-green-700', label: 'คืนแล้ว' },
-            'rejected': { color: 'bg-red-100 text-red-700', label: 'ถูกปฏิเสธ' }
+            'rejected': { color: 'bg-red-100 text-red-700', label: 'ถูกปฏิเสธ' },
+            'cancelled': { color: 'bg-slate-200 text-slate-600', label: 'ยกเลิกโดยผู้ใช้' }
         };
 
         window.filterRequests = function(query) {
@@ -949,7 +1007,7 @@
 
         function renderHistory() {
             const table = document.getElementById('history-table');
-            let history = bookings.filter(b => ['returned', 'rejected'].includes(b.status));
+            let history = bookings.filter(b => ['returned', 'rejected', 'cancelled'].includes(b.status));
             
             if (currentHistoryQuery) {
                 const term = currentHistoryQuery.toLowerCase();
@@ -962,6 +1020,8 @@
                 });
             }
             
+            history.sort((a,b) => new Date(b.returnDate || 0) - new Date(a.returnDate || 0));
+
             table.innerHTML = history.map(b => {
                 const asset = assets.find(a => a.id === b.assetId);
                 const conf = statusConfig[b.status];
@@ -973,7 +1033,7 @@
                         <p class="text-sm font-bold text-orange-600 font-mono mt-1 flex items-center gap-1"><i data-lucide="phone" class="w-4 h-4"></i> ${b.phone || '-'}</p>
                     </td>
                     <td class="p-4 text-sm font-bold text-slate-700 font-mono" data-label="วันที่ยืม">${formatThaiDateTime(b.start)}</td>
-                    <td class="p-4 text-sm font-black text-blue-600 font-mono" data-label="วันที่คืนจริง">${formatThaiDateTime(b.returnDate)}</td>
+                    <td class="p-4 text-sm font-black text-blue-600 font-mono" data-label="อัปเดตล่าสุด">${formatThaiDateTime(b.returnDate)}</td>
                     <td class="p-4" data-label="ผลลัพธ์"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${conf.color}">${conf.label}</span></td>
                 </tr>`;
             }).join('') || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">${currentHistoryQuery ? 'ไม่พบข้อมูลประวัติที่ค้นหา' : 'ยังไม่มีประวัติการทำรายการ'}</td></tr>`;
@@ -986,7 +1046,7 @@
             btn.querySelector('.loader').style.display = 'block';
             btn.querySelector('span').innerText = 'กำลังลบ...';
 
-            const historyToClear = bookings.filter(b => ['returned', 'rejected'].includes(b.status));
+            const historyToClear = bookings.filter(b => ['returned', 'rejected', 'cancelled'].includes(b.status));
             
             try {
                 await Promise.all(historyToClear.map(b => deleteDoc(doc(db, 'artifacts', myAppId, 'public', 'data', 'bookings', b.id))));
@@ -1015,7 +1075,8 @@
                 'approved': 'รอรับของ',
                 'borrowed': 'กำลังยืม',
                 'returned': 'คืนแล้ว',
-                'rejected': 'ปฏิเสธ'
+                'rejected': 'ปฏิเสธ',
+                'cancelled': 'ยกเลิกแล้ว'
             };
             
             return bookings.map(b => {
@@ -1026,6 +1087,7 @@
                 if (b.status === 'borrowed') bgColor = '#4f46e5';
                 if (b.status === 'returned') bgColor = '#10b981';
                 if (b.status === 'rejected') bgColor = '#ef4444';
+                if (b.status === 'cancelled') bgColor = '#94a3b8'; // สีเทา
                 
                 return { 
                     id: b.id,
@@ -1088,6 +1150,45 @@
                 ? `<div class="col-span-2 mt-2"><p class="text-[10px] font-bold text-slate-400 uppercase mb-2">รูปถ่ายยืนยันรับอุปกรณ์</p><img src="${b.confirmationImage}" class="w-full rounded-xl border border-slate-200"></div>`
                 : '';
 
+            const timelineHTML = `
+                <div class="col-span-2 mt-2 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <p class="text-[11px] font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <i data-lucide="clock" class="w-4 h-4 text-slate-400"></i> บันทึกเวลาการทำรายการ
+                    </p>
+                    <div class="space-y-2 text-[11px] font-mono text-slate-600">
+                        <div class="flex justify-between items-center border-b border-slate-200 pb-1">
+                            <span class="font-bold text-slate-500">1. ทำรายการยืม:</span> 
+                            <span>${b.createdAt ? formatThaiDateTime(b.createdAt) : '-'}</span>
+                        </div>
+                        ${b.approvedAt ? `
+                        <div class="flex justify-between items-center border-b border-slate-200 pb-1">
+                            <span class="font-bold text-blue-600">2. อนุมัติคำขอ:</span> 
+                            <span class="text-blue-600">${formatThaiDateTime(b.approvedAt)}</span>
+                        </div>` : ''}
+                        ${b.receiveDate ? `
+                        <div class="flex justify-between items-center border-b border-slate-200 pb-1">
+                            <span class="font-bold text-indigo-600">3. มอบอุปกรณ์/รับของจริง:</span> 
+                            <span class="text-indigo-600">${formatThaiDateTime(b.receiveDate)}</span>
+                        </div>` : ''}
+                        ${b.status === 'returned' && b.returnDate ? `
+                        <div class="flex justify-between items-center pb-1">
+                            <span class="font-bold text-green-600">4. รับของคืน/คืนอุปกรณ์:</span> 
+                            <span class="text-green-600">${formatThaiDateTime(b.returnDate)}</span>
+                        </div>` : ''}
+                        ${b.rejectedAt ? `
+                        <div class="flex justify-between items-center pb-1 border-red-100">
+                            <span class="font-bold text-red-600">x. ปฏิเสธคำขอ:</span> 
+                            <span class="text-red-600">${formatThaiDateTime(b.rejectedAt)}</span>
+                        </div>` : ''}
+                        ${b.cancelledAt ? `
+                        <div class="flex justify-between items-center pb-1">
+                            <span class="font-bold text-slate-500">x. ยกเลิกรายการ:</span> 
+                            <span class="text-slate-500">${formatThaiDateTime(b.cancelledAt)}</span>
+                        </div>` : ''}
+                    </div>
+                </div>
+            `;
+
             const content = `
                 <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 mb-2">
                     <p class="text-[10px] font-bold text-orange-600 uppercase tracking-wider mb-1">อุปกรณ์</p>
@@ -1114,6 +1215,7 @@
                         </div>
                     </div>
                     ${photoHTML}
+                    ${timelineHTML}
                 </div>
             `;
             document.getElementById('event-detail-content').innerHTML = content;
