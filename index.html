@@ -102,7 +102,7 @@
                 position: fixed; top: 0; left: 0; right: 0; width: 100%; height: 70px;
                 padding: 10px 20px; border-bottom: 1px solid #e2e8f0; 
                 flex-direction: row !important; align-items: center !important; justify-content: space-between !important;
-                z-index: 40; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+                z-index: 40; background: #ffffff;
             }
             #connection-status { display: none !important; }
             
@@ -175,18 +175,6 @@
             </div>
         </div>
 
-        <!-- User Identity Display -->
-        <div id="user-identity" class="md:mb-6 md:p-4 md:bg-slate-50 md:rounded-xl md:border md:border-slate-100 md:text-center w-auto md:w-full flex items-center gap-3 md:block">
-            <div class="w-10 h-10 md:w-16 md:h-16 rounded-full mx-auto md:mb-3 bg-slate-200 overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
-                <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=random" class="w-full h-full object-cover">
-            </div>
-            <div class="hidden md:block min-w-0">
-                <h3 id="user-display-name" class="font-bold text-slate-800 text-sm truncate">กำลังโหลด...</h3>
-                <p id="user-email" class="text-[10px] text-slate-500 truncate">-</p>
-            </div>
-            <button onclick="logout()" class="text-red-500 md:mt-3 md:text-xs md:bg-red-50 md:px-3 md:py-1.5 md:rounded-lg font-bold md:hover:bg-red-500 md:hover:text-white transition-colors w-auto md:w-full p-2 md:p-0 shrink-0" title="ออกจากระบบ"><i data-lucide="log-out" class="w-5 h-5 md:hidden"></i><span class="hidden md:inline">ออกจากระบบ</span></button>
-        </div>
-
         <nav class="flex-grow">
             <div class="nav-btn active" onclick="switchTab('dashboard', this)">
                 <i data-lucide="layout-grid" class="w-5 h-5"></i>
@@ -204,6 +192,21 @@
                 <span class="md:hidden">ปฏิทินคิว</span>
             </div>
         </nav>
+
+        <!-- User Identity Display -->
+        <div id="user-identity" class="md:mt-auto md:pt-6 md:border-t border-slate-100 flex items-center md:flex-col gap-3 md:bg-slate-50 md:p-4 md:rounded-xl w-auto md:w-full md:text-center">
+            <div class="w-10 h-10 md:w-16 md:h-16 rounded-full mx-auto md:mb-1 bg-slate-200 overflow-hidden border-2 border-white shadow-sm hidden md:block shrink-0">
+                <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=random" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-grow overflow-hidden hidden md:block min-w-0 w-full">
+                <h3 id="user-display-name" class="font-bold text-slate-800 text-sm truncate">กำลังโหลด...</h3>
+                <p id="user-email" class="text-[10px] text-slate-500 truncate">-</p>
+            </div>
+            <button onclick="logout()" class="text-red-500 bg-red-50 p-2 md:px-3 md:py-1.5 md:mt-2 rounded-lg font-bold hover:bg-red-500 hover:text-white transition-colors shrink-0 md:w-full flex items-center justify-center gap-2" title="ออกจากระบบ">
+                <i data-lucide="log-out" class="w-5 h-5 md:w-4 md:h-4"></i>
+                <span class="hidden md:inline">ออกจากระบบ</span>
+            </button>
+        </div>
         
         <div id="connection-status" class="mt-4 flex items-center gap-2 text-xs font-bold text-slate-400 w-full justify-center lg:justify-start">
             <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span> กำลังเชื่อมต่อ...
