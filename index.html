@@ -344,7 +344,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ==========================================
         // 🔧 ตั้งค่า FIREBASE ของคุณ
@@ -389,7 +389,6 @@
         async function sendEmailNotification(toEmail, subject, htmlMessage) {
             const scriptUrl = 'https://script.google.com/macros/s/AKfycbyAzTWFeYOlrZ2_cAbOuuiXVUlZ91DGFaW5gYLtrcOlwi5kosAqkfMnn9rmmB7bXsWJ/exec';
             try {
-                // ใช้รูปแบบ URLSearchParams (เสมือนการส่ง Form ทั่วไป) ป้องกันปัญหาการตั้งค่า CORS ของบราวเซอร์
                 const params = new URLSearchParams();
                 params.append('to_email', toEmail);
                 params.append('subject', subject);
@@ -398,12 +397,11 @@
                 await fetch(scriptUrl, {
                     method: 'POST',
                     body: params,
-                    mode: 'no-cors', // คำสั่งสำคัญที่ทำให้สามารถส่งข้อมูลทะลุไปถึง Google Script ได้
+                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 });
-                console.log('ระบบพยายามส่งอีเมลแจ้งเตือนแล้ว');
             } catch(err) {
                 console.error('ส่งอีเมลแจ้งเตือนไม่สำเร็จ:', err);
             }
@@ -431,7 +429,6 @@
         const provider = new GoogleAuthProvider();
         provider.setCustomParameters({ hd: 'kmitl.ac.th' });
 
-        // เชื่อมต่อระบบพร้อมดัก Error
         async function initAuth() {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -440,7 +437,6 @@
                     await signInAnonymously(auth);
                 }
             } catch (error) {
-                // ซ่อนการแสดงผล Auth error และเข้าสู่โหมด Anonymous แบบเงียบๆ บน Canvas
                 if (isLocalHost || isCanvasEnv) {
                     try {
                         await signInAnonymously(auth);
@@ -450,10 +446,8 @@
             }
         }
 
-        // เชื่อมต่อระบบ (ดักจับสถานะ Auth)
         onAuthStateChanged(auth, (u) => {
             if (u) {
-                // ตรวจสอบโดเมน 
                 const isCanvasToken = typeof __initial_auth_token !== 'undefined' && __initial_auth_token;
                 if (!isCanvasToken && !u.isAnonymous && u.email && !u.email.endsWith('@kmitl.ac.th')) {
                     signOut(auth);
@@ -542,11 +536,9 @@
             }
         }
 
-        // ฟังก์ชันสำหรับเปิด-ปิด Modal
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        // --- ระบบค้นหา ---
         window.filterAssets = function(query) {
             currentSearchQuery = query;
             renderAssets(query);
@@ -555,7 +547,6 @@
         function renderAssets(searchQuery = '') {
             const grid = document.getElementById('assets-grid');
             
-            // กรองข้อมูลจากชื่อหรือรายละเอียด
             const filteredAssets = assets.filter(a => {
                 const term = searchQuery.toLowerCase();
                 return a.name.toLowerCase().includes(term) || (a.desc && a.desc.toLowerCase().includes(term));
@@ -687,7 +678,7 @@
                     assetId, 
                     user: username, 
                     userId: userId, 
-                    userEmail: user.email || '', // บันทึกอีเมลไว้สำหรับให้แอดมินส่งเมลกลับ
+                    userEmail: user.email || '', 
                     phone: phone, 
                     start, 
                     end, 
@@ -700,8 +691,19 @@
                 closeModal('booking-modal');
                 showToast('ส่งคำขอยืมสำเร็จ รอเจ้าหน้าที่อนุมัติ');
 
-                // ส่งอีเมลหาแอดมิน (ใช้อีเมลแอดมินหลักที่ตั้งไว้)
-                const adminEmail = 'sharnjira.ki@kmitl.ac.th';
+                // ดึงอีเมลแอดมินทุกคน (Main Admin และ Co-Admin) จากฐานข้อมูล
+                let targetEmails = ['sharnjira.ki@kmitl.ac.th']; // ค่าเริ่มต้นเผื่อค้นหาไม่เจอ
+                try {
+                    const adminsSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'adminRoles'));
+                    const adminsData = adminsSnap.docs.map(d => d.data());
+                    if (adminsData.length > 0) {
+                        // ดึงอีเมลของแอดมินทุกคนในระบบ
+                        targetEmails = adminsData.map(a => a.email);
+                    }
+                } catch (e) {
+                    console.error("Error fetching admin emails:", e);
+                }
+
                 const assetName = assets.find(a => a.id === assetId)?.name || 'อุปกรณ์';
                 const subject = `🔔 มีคำขอยืมอุปกรณ์ใหม่จาก: ${username}`;
                 const body = `
@@ -716,7 +718,11 @@
                         <p>กรุณาเข้าสู่ระบบหลังบ้าน (Admin Portal) เพื่อตรวจสอบและพิจารณาอนุมัติ</p>
                     </div>
                 `;
-                sendEmailNotification(adminEmail, subject, body);
+
+                // ส่งอีเมลหาแอดมินทุกคนในระบบพร้อมๆ กัน
+                targetEmails.forEach(email => {
+                    sendEmailNotification(email, subject, body);
+                });
 
             } catch(error) {
                 console.error("Booking error:", error);
@@ -780,7 +786,6 @@
                 
                 let actionBtn = '';
                 if(b.status === 'pending') {
-                    // ปุ่มสำหรับยกเลิกคำขอ
                     actionBtn = `<button onclick="cancelBooking('${b.id}')" class="mt-3 w-full bg-red-50 text-red-500 font-bold py-2 rounded-lg text-xs hover:bg-red-500 hover:text-white transition-colors border border-red-100">ยกเลิกคำขอ</button>`;
                 } else if(b.status === 'approved') {
                     actionBtn = `<button onclick="openCameraModal('${b.id}')" class="mt-3 w-full bg-green-500 text-white font-bold py-2 rounded-lg text-xs hover:bg-green-600 transition-colors flex items-center justify-center gap-1 shadow-sm"><i data-lucide="camera" class="w-4 h-4"></i> ยืนยันรับอุปกรณ์ (ถ่าย/อัปโหลดรูป)</button>`;
@@ -897,7 +902,7 @@
                 if (b.status === 'borrowed') bgColor = '#4f46e5';
                 if (b.status === 'returned') bgColor = '#10b981';
                 if (b.status === 'rejected') bgColor = '#ef4444';
-                if (b.status === 'cancelled') bgColor = '#94a3b8'; // สีเทาสำหรับยกเลิก
+                if (b.status === 'cancelled') bgColor = '#94a3b8'; // สีเทา
                 
                 return { 
                     id: b.id,
