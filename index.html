@@ -930,15 +930,18 @@
                 locale: 'th', 
                 events: getCalendarEvents(),
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listMonth' },
+                eventDisplay: 'block',
+                displayEventTime: false,
                 eventClick: function(info) { showEventDetails(info.event.id); },
                 eventContent: function(arg) {
                     const statusLabel = arg.event.extendedProps.statusLabel;
                     const assetName = arg.event.extendedProps.assetName;
                     const userName = arg.event.extendedProps.userName;
+                    const bgColor = arg.event.backgroundColor;
 
                     return {
                         html: `
-                            <div class="custom-event-content">
+                            <div class="custom-event-content" style="background-color: ${bgColor}; border-radius: 8px;">
                                 <span class="custom-event-badge">${statusLabel}</span>
                                 <span class="custom-event-title">${assetName}</span>
                                 <span class="custom-event-user">👤 ${userName}</span>
