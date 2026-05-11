@@ -102,10 +102,11 @@
                 position: fixed; top: 0; left: 0; right: 0; width: 100%; height: 70px;
                 padding: 10px 20px; border-bottom: 1px solid #e2e8f0; 
                 flex-direction: row !important; align-items: center !important; justify-content: space-between !important;
-                z-index: 40; background: #ffffff;
+                z-index: 40; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             }
             #connection-status { display: none !important; }
             
+            /* เพิ่ม Padding ด้านล่างหลบ Bottom Nav */
             .content-area { padding: 90px 15px 120px 15px; height: auto; overflow: visible; min-height: calc(100vh + 1px); }
             
             nav { 
@@ -117,7 +118,7 @@
                 padding-bottom: calc(10px + env(safe-area-inset-bottom));
                 box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
             }
-            .nav-btn { flex-direction: column !important; padding: 5px !important; flex: 1; text-align: center; margin-bottom: 0 !important; min-width: 0; }
+            .nav-btn { flex-direction: column !important; padding: 5px !important; width: 33.33%; text-align: center; margin-bottom: 0 !important; }
             .nav-btn span.md\:hidden { font-size: 10px; margin-top: 4px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .nav-btn.active { background: transparent !important; color: var(--kmitl) !important; box-shadow: none !important; }
             .nav-btn i { margin: 0 auto; color: #94a3b8; }
@@ -131,6 +132,7 @@
             }
             @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
+            /* ปรับแต่งปฏิทินสำหรับมือถือโดยเฉพาะ */
             .fc .fc-toolbar.fc-header-toolbar { flex-direction: column; gap: 12px; margin-bottom: 1rem !important; }
             .fc .fc-toolbar-title { font-size: 1.25rem !important; }
             .fc .fc-button-group { width: 100%; justify-content: center; }
@@ -138,6 +140,7 @@
             .fc-list-event-title { padding: 12px !important; }
             .fc-list-event-time { padding: 12px !important; width: auto !important; }
 
+            /* ปรับแต่ง List View มือถือ ให้เป็นบล็อกสีทึบ */
             .fc-list-event-graphic, .fc-list-event-time { display: none !important; }
             .fc-list-event-title { padding: 4px 0 !important; border: none !important; }
             .fc-list-event:hover td { background-color: transparent !important; }
@@ -175,6 +178,21 @@
             </div>
         </div>
 
+        <!-- User Identity Display -->
+        <div id="user-identity" class="md:mt-auto md:pt-6 md:border-t border-slate-100 flex items-center md:flex-col gap-3 md:bg-slate-50 md:p-4 md:rounded-xl w-auto md:w-full md:text-center">
+            <div class="w-10 h-10 md:w-16 md:h-16 rounded-full mx-auto md:mb-1 bg-slate-200 overflow-hidden border-2 border-white shadow-sm hidden md:block shrink-0">
+                <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=random" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-grow overflow-hidden hidden md:block min-w-0 w-full">
+                <h3 id="user-display-name" class="font-bold text-slate-800 text-sm truncate">กำลังโหลด...</h3>
+                <p id="user-email" class="text-[10px] text-slate-500 truncate">-</p>
+            </div>
+            <button onclick="logout()" class="text-red-500 md:mt-3 md:text-xs md:bg-red-50 md:px-3 md:py-1.5 md:mt-2 rounded-lg font-bold md:hover:bg-red-500 md:hover:text-white transition-colors shrink-0 md:w-full flex items-center justify-center gap-2" title="ออกจากระบบ">
+                <i data-lucide="log-out" class="w-5 h-5 md:w-4 md:h-4"></i>
+                <span class="hidden md:inline">ออกจากระบบ</span>
+            </button>
+        </div>
+
         <nav class="flex-grow">
             <div class="nav-btn active" onclick="switchTab('dashboard', this)">
                 <i data-lucide="layout-grid" class="w-5 h-5"></i>
@@ -192,21 +210,6 @@
                 <span class="md:hidden">ปฏิทินคิว</span>
             </div>
         </nav>
-
-        <!-- User Identity Display -->
-        <div id="user-identity" class="md:mt-auto md:pt-6 md:border-t border-slate-100 flex items-center md:flex-col gap-3 md:bg-slate-50 md:p-4 md:rounded-xl w-auto md:w-full md:text-center">
-            <div class="w-10 h-10 md:w-16 md:h-16 rounded-full mx-auto md:mb-1 bg-slate-200 overflow-hidden border-2 border-white shadow-sm hidden md:block shrink-0">
-                <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=random" class="w-full h-full object-cover">
-            </div>
-            <div class="flex-grow overflow-hidden hidden md:block min-w-0 w-full">
-                <h3 id="user-display-name" class="font-bold text-slate-800 text-sm truncate">กำลังโหลด...</h3>
-                <p id="user-email" class="text-[10px] text-slate-500 truncate">-</p>
-            </div>
-            <button onclick="logout()" class="text-red-500 bg-red-50 p-2 md:px-3 md:py-1.5 md:mt-2 rounded-lg font-bold hover:bg-red-500 hover:text-white transition-colors shrink-0 md:w-full flex items-center justify-center gap-2" title="ออกจากระบบ">
-                <i data-lucide="log-out" class="w-5 h-5 md:w-4 md:h-4"></i>
-                <span class="hidden md:inline">ออกจากระบบ</span>
-            </button>
-        </div>
         
         <div id="connection-status" class="mt-4 flex items-center gap-2 text-xs font-bold text-slate-400 w-full justify-center lg:justify-start">
             <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span> กำลังเชื่อมต่อ...
@@ -347,7 +350,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ==========================================
         // 🔧 ตั้งค่า FIREBASE ของคุณ
@@ -550,6 +553,7 @@
         function renderAssets(searchQuery = '') {
             const grid = document.getElementById('assets-grid');
             
+            // กรองข้อมูลจากชื่อหรือรายละเอียด
             const filteredAssets = assets.filter(a => {
                 const term = searchQuery.toLowerCase();
                 return a.name.toLowerCase().includes(term) || (a.desc && a.desc.toLowerCase().includes(term));
@@ -694,13 +698,11 @@
                 closeModal('booking-modal');
                 showToast('ส่งคำขอยืมสำเร็จ รอเจ้าหน้าที่อนุมัติ');
 
-                // ดึงอีเมลแอดมินทุกคน (Main Admin และ Co-Admin) จากฐานข้อมูล
                 let targetEmails = ['sharnjira.ki@kmitl.ac.th']; // ค่าเริ่มต้นเผื่อค้นหาไม่เจอ
                 try {
                     const adminsSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'adminRoles'));
                     const adminsData = adminsSnap.docs.map(d => d.data());
                     if (adminsData.length > 0) {
-                        // ดึงอีเมลของแอดมินทุกคนในระบบ
                         targetEmails = adminsData.map(a => a.email);
                     }
                 } catch (e) {
@@ -722,7 +724,6 @@
                     </div>
                 `;
 
-                // ส่งอีเมลหาแอดมินทุกคนในระบบพร้อมๆ กัน
                 targetEmails.forEach(email => {
                     sendEmailNotification(email, subject, body);
                 });
@@ -814,9 +815,6 @@
             if(window.lucide) lucide.createIcons();
         }
 
-        // ==========================================
-        // ระบบถ่ายรูปยืนยัน (Native Mobile Camera & Upload)
-        // ==========================================
         let currentCapturedImage = null;
         let confirmBookingId = null;
 
@@ -963,7 +961,6 @@
                 ? `<div class="col-span-2 mt-2"><p class="text-[10px] font-bold text-slate-400 uppercase mb-2">รูปถ่ายยืนยันรับอุปกรณ์</p><img src="${b.confirmationImage}" class="w-full rounded-xl border border-slate-200"></div>`
                 : '';
 
-            // สร้าง Timeline HTML เพื่อบอกประวัติเวลา
             const timelineHTML = `
                 <div class="col-span-2 mt-2 p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <p class="text-[11px] font-bold text-slate-800 mb-3 flex items-center gap-2">
