@@ -70,25 +70,37 @@
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
-            .portal-wrapper { display: block; overflow-y: auto; height: auto; min-height: calc(100vh - 56px); }
+            /* 1. ปลดล็อกระบบ Scroll หน้าจอ */
+            body { overflow-y: auto !important; height: auto; min-height: 100%; overflow-x: hidden; }
+            .portal-wrapper { display: block !important; overflow: visible !important; height: auto !important; min-height: 100vh; margin-top: 0; }
             
+            /* 2. ย้ายแถบสลับระบบลงมาด้านล่าง */
+            #top-portal-nav { 
+                top: auto; 
+                bottom: calc(65px + env(safe-area-inset-bottom)); /* วางเหนือแท็บเมนูด้านล่างสุด */
+                height: 44px;
+                z-index: 45;
+            }
+            #btn-nav-user, #btn-nav-admin { font-size: 12px; }
+            
+            /* 3. ปรับ Sidebar (ที่มีโลโก้) ให้อยู่บนสุด */
             .sidebar { 
-                position: fixed; top: 56px; left: 0; right: 0; width: 100%; height: 70px;
+                position: fixed; top: 0; left: 0; right: 0; width: 100%; height: 70px;
                 padding: 10px 20px; border-bottom: 1px solid #e2e8f0; 
                 flex-direction: row !important; align-items: center !important; justify-content: space-between !important;
                 z-index: 40; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             }
             .hide-on-mobile { display: none !important; }
             
-            .content-area { padding: 146px 15px 120px 15px; height: auto; overflow: visible; min-height: calc(100vh + 1px); }
+            /* เว้นพื้นที่ให้เนื้อหาหลบ Sidebar และแท็บด้านล่างทั้ง 2 ชั้น */
+            .content-area { padding: 90px 15px 140px 15px; height: auto !important; overflow: visible !important; min-height: calc(100vh + 1px); }
             
             nav { 
-                position: fixed; bottom: 0; left: 0; right: 0; width: 100%; 
+                position: fixed; bottom: 0; left: 0; right: 0; width: 100%; height: 65px;
                 background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
                 border-top: 1px solid #e2e8f0; z-index: 50; 
                 display: flex !important; flex-direction: row !important; justify-content: space-around !important; 
-                padding: 10px 5px; margin-top: 0;
-                padding-bottom: calc(10px + env(safe-area-inset-bottom));
+                padding: 5px 5px calc(5px + env(safe-area-inset-bottom)); margin-top: 0;
                 box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
             }
             .nav-btn { flex-direction: column !important; padding: 5px !important; flex: 1; text-align: center; margin-bottom: 0 !important; min-width: 0; }
@@ -107,8 +119,10 @@
             .fc .fc-button { padding: 8px 12px !important; font-size: 12px !important; flex-grow: 1; }
             .fc-list-event-title { padding: 12px !important; }
             .fc-list-event-time { padding: 12px !important; width: auto !important; }
+
             .fc-list-event-graphic, .fc-list-event-time { display: none !important; }
             .fc-list-event-title { padding: 4px 0 !important; border: none !important; }
+            .fc-list-event:hover td { background-color: transparent !important; }
 
             /* Admin Table mobile view */
             table, thead, tbody, th, td, tr { display: block; width: 100%; }
@@ -425,7 +439,6 @@
             <div class="space-y-4">
                 <div id="selected-asset-info" class="p-4 bg-orange-50 rounded-xl mb-4 border border-orange-100"></div>
                 <input type="hidden" id="booking-asset-id">
-                
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-1">เบอร์โทรศัพท์ติดต่อ <span class="text-red-500">*</span></label>
                     <input type="tel" id="book-phone" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100" placeholder="ระบุตัวเลขเท่านั้น (เช่น 0812345678)" required>
@@ -441,52 +454,27 @@
                     </div>
                 </div>
                 <p class="text-[10px] text-red-500 font-bold">* ให้บริการเฉพาะเวลา 08:00 น. ถึง 17:00 น. เท่านั้น</p>
-                
-                <button onclick="submitBooking(this)" class="btn-primary mt-4">
-                    <div class="loader"></div>
-                    <span>ยืนยันการจอง</span>
-                </button>
+                <button onclick="submitBooking(this)" class="btn-primary mt-4"><div class="loader"></div><span>ยืนยันการจอง</span></button>
             </div>
         </div>
     </div>
 
-    <!-- Event Detail Modal -->
-    <div id="event-detail-modal" class="modal">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-black text-slate-800">รายละเอียดคิว</h3>
-                <button onclick="closeModal('event-detail-modal')" class="text-slate-400 hover:text-red-500"><i data-lucide="x"></i></button>
-            </div>
-            <div id="event-detail-content" class="space-y-4"></div>
-            <button onclick="closeModal('event-detail-modal')" class="w-full mt-6 bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">ปิดหน้าต่าง</button>
-        </div>
-    </div>
-
-    <!-- Camera Confirmation Modal -->
+    <!-- User: Camera Modal -->
     <div id="camera-modal" class="modal">
         <div class="modal-content text-center">
             <h3 class="text-xl font-black text-slate-800 mb-2">ถ่ายรูปยืนยันรับอุปกรณ์</h3>
             <p class="text-xs text-slate-500 mb-4">ถ่ายรูปคุณคู่กับอุปกรณ์ หรืออัปโหลดรูปภาพเพื่อยืนยัน</p>
-            
             <div class="w-full bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl overflow-hidden mb-4 relative aspect-[3/4] md:aspect-video flex flex-col items-center justify-center p-4 hover:bg-slate-100 transition-colors">
-                <!-- Preview Image -->
                 <img id="camera-preview-img" class="w-full h-full object-cover hidden absolute inset-0 z-10 rounded-xl">
-                
-                <!-- UI อัปโหลด/ถ่ายรูป -->
                 <div id="camera-ui-prompt" class="z-0 flex flex-col items-center">
                     <i data-lucide="camera" class="w-10 h-10 text-slate-400 mb-2"></i>
                     <span class="text-sm font-bold text-slate-500">คลิกเพื่อเปิดกล้อง / เลือกรูปภาพ</span>
                 </div>
-                
-                <!-- File Input ซ่อนไว้แต่กดได้เต็มกรอบ -->
                 <input type="file" id="camera-file-input" accept="image/*" capture="environment" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" onchange="handleFallbackImage(this)">
             </div>
-
             <div class="flex gap-2">
                 <button onclick="closeCameraModal()" class="flex-1 bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">ยกเลิก</button>
-                <button onclick="takePhoto(this)" class="flex-1 bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 flex justify-center items-center gap-2 transition-colors">
-                    <i data-lucide="check-circle" class="w-5 h-5"></i> ยืนยันการรับ
-                </button>
+                <button onclick="takePhoto(this)" class="flex-1 bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 flex justify-center items-center gap-2 transition-colors"><i data-lucide="check-circle" class="w-5 h-5"></i> ยืนยันการรับ</button>
             </div>
         </div>
     </div>
@@ -536,9 +524,7 @@
     <!-- Admin: Clear History Modal -->
     <div id="a-clear-history-modal" class="modal">
         <div class="modal-content text-center">
-            <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="alert-triangle" class="w-8 h-8"></i>
-            </div>
+            <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="alert-triangle" class="w-8 h-8"></i></div>
             <h3 class="text-xl font-black text-slate-800 mb-2">ยืนยันการล้างประวัติ?</h3>
             <p class="text-sm text-slate-500 mb-6">คุณกำลังจะลบประวัติการยืม-คืนที่เสร็จสิ้นแล้วทั้งหมด ข้อมูลนี้จะไม่สามารถกู้คืนได้</p>
             <div class="flex gap-3">
@@ -548,12 +534,24 @@
         </div>
     </div>
 
+    <!-- Shared: Event Detail Modal -->
+    <div id="event-detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-black text-slate-800">รายละเอียดรายการ</h3>
+                <button onclick="closeModal('event-detail-modal')" class="text-slate-400 hover:text-red-500"><i data-lucide="x"></i></button>
+            </div>
+            <div id="event-detail-content" class="space-y-4"></div>
+            <button onclick="closeModal('event-detail-modal')" class="w-full mt-6 bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">ปิดหน้าต่าง</button>
+        </div>
+    </div>
+
     <div id="toast-container"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ==========================================
         // 🔧 ตั้งค่า FIREBASE ของคุณ
@@ -599,6 +597,10 @@
         // ตัวแปรเก็บ Instance ปฏิทิน
         let fpStart = null;
         let fpEnd = null;
+
+        let unsubAssets = null;
+        let unsubBookings = null;
+        let unsubAdmins = null;
 
         // ==========================================
         // ฟังก์ชันระบบสลับหน้า (Role Routing)
@@ -715,10 +717,6 @@
 
         const provider = new GoogleAuthProvider();
         provider.setCustomParameters({ hd: 'kmitl.ac.th' });
-
-        let unsubAssets = null;
-        let unsubBookings = null;
-        let unsubAdmins = null;
 
         function unsubscribeAll() {
             if (unsubAssets) { unsubAssets(); unsubAssets = null; }
@@ -1128,7 +1126,7 @@
         }
 
         function renderMyRequests() {
-            const list = document.getElementById('u-my-requests-list');
+            const list = document.getElementById('my-requests-list');
             if (!list) return;
             
             let myBookings = bookings.filter(b => b.userId === user?.uid).sort((a,b) => new Date(b.start) - new Date(a.start));
@@ -1242,6 +1240,42 @@
 
             btn.classList.remove('btn-loading');
             btn.innerHTML = originalText;
+        }
+
+        function getCalendarEvents() {
+            const stLabel = {
+                'pending': 'รออนุมัติ',
+                'approved': 'รอรับของ',
+                'borrowed': 'กำลังยืม',
+                'returned': 'คืนแล้ว',
+                'rejected': 'ปฏิเสธ',
+                'cancelled': 'ยกเลิกแล้ว'
+            };
+            
+            return bookings.map(b => {
+                const assetName = assets.find(a => a.id === b.assetId)?.name || 'อุปกรณ์ถูกลบ';
+                
+                let bgColor = '#f59e0b';
+                if (b.status === 'approved') bgColor = '#0ea5e9';
+                if (b.status === 'borrowed') bgColor = '#4f46e5';
+                if (b.status === 'returned') bgColor = '#10b981';
+                if (b.status === 'rejected') bgColor = '#ef4444';
+                if (b.status === 'cancelled') bgColor = '#94a3b8'; // สีเทา
+                
+                return { 
+                    id: b.id,
+                    title: `${assetName} (${b.user})`, 
+                    start: b.start, 
+                    end: b.end, 
+                    backgroundColor: bgColor, 
+                    borderColor: 'transparent',
+                    extendedProps: {
+                        statusLabel: stLabel[b.status] || b.status,
+                        assetName: assetName,
+                        userName: b.user
+                    }
+                };
+            });
         }
 
         function initUCalendar() {
@@ -1652,42 +1686,6 @@
                 badge.innerText = count; 
                 badge.classList.toggle('hidden', count === 0); 
             }
-        }
-
-        function getCalendarEvents() {
-            const stLabel = {
-                'pending': 'รออนุมัติ',
-                'approved': 'รอรับของ',
-                'borrowed': 'กำลังยืม',
-                'returned': 'คืนแล้ว',
-                'rejected': 'ปฏิเสธ',
-                'cancelled': 'ยกเลิกแล้ว'
-            };
-            
-            return bookings.map(b => {
-                const assetName = assets.find(a => a.id === b.assetId)?.name || 'อุปกรณ์ถูกลบ';
-                
-                let bgColor = '#f59e0b';
-                if (b.status === 'approved') bgColor = '#0ea5e9';
-                if (b.status === 'borrowed') bgColor = '#4f46e5';
-                if (b.status === 'returned') bgColor = '#10b981';
-                if (b.status === 'rejected') bgColor = '#ef4444';
-                if (b.status === 'cancelled') bgColor = '#94a3b8'; // สีเทา
-                
-                return { 
-                    id: b.id,
-                    title: `${assetName} (${b.user})`, 
-                    start: b.start, 
-                    end: b.end, 
-                    backgroundColor: bgColor, 
-                    borderColor: 'transparent',
-                    extendedProps: {
-                        statusLabel: stLabel[b.status] || b.status,
-                        assetName: assetName,
-                        userName: b.user
-                    }
-                };
-            });
         }
 
         function initACalendar() {
