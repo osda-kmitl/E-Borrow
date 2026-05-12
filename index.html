@@ -42,12 +42,12 @@
         .btn-primary:hover { background: #e65c00; transform: translateY(-1px); }
         .btn-primary:active { transform: translateY(1px); }
 
-        .status-badge { padding: 4px 12px; border-radius: 99px; font-size: 11px; font-weight: 800; text-transform: uppercase; text-align: center; }
+        .status-badge { padding: 4px 12px; border-radius: 99px; font-size: 11px; font-weight: 800; text-transform: uppercase; text-align: center; display: inline-block; }
         .role-badge { padding: 4px 10px; border-radius: 99px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .role-main { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
         .role-co { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
 
-        /* Toast */
+        /* Toast Notification */
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 100; display: flex; flex-direction: column; gap: 10px; }
         .toast { background: #333; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transform: translateY(20px); transition: all 0.3s ease; }
         .toast.show { opacity: 1; transform: translateY(0); }
@@ -62,53 +62,53 @@
         .fc-event { border: none !important; border-radius: 8px !important; margin-bottom: 4px !important; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; }
         .fc-daygrid-event { white-space: normal !important; align-items: normal !important; }
         .custom-event-content { display: flex; flex-direction: column; gap: 4px; padding: 6px; white-space: normal !important; word-wrap: break-word; }
-        .custom-event-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11.5px; font-weight: 800; background: rgba(255, 255, 255, 0.25); color: #ffffff; width: max-content; }
-        .custom-event-title { font-size: 13px; font-weight: 700; color: white; line-height: 1.3; }
-        .custom-event-user { font-size: 11px; color: rgba(255, 255, 255, 0.9); font-weight: 500; line-height: 1.2; }
+        .custom-event-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 800; background: rgba(255, 255, 255, 0.25); color: #ffffff; width: max-content; }
+        .custom-event-title { font-size: 12.5px; font-weight: 700; color: white; line-height: 1.3; }
+        .custom-event-user { font-size: 10.5px; color: rgba(255, 255, 255, 0.9); font-weight: 500; }
         .fc-daygrid-event-dot { display: none !important; }
         .fc-event-main { padding: 0 !important; }
 
-        /* Mobile Responsive */
+        /* =========================================
+           แก้ไข Mobile Responsive: ปลดล็อกเลื่อนจอ + เมนูอยู่ล่าง
+           ========================================= */
         @media (max-width: 768px) {
-            /* 1. ปลดล็อกระบบ Scroll หน้าจอ */
-            body { overflow-y: auto !important; height: auto; min-height: 100%; overflow-x: hidden; }
-            .portal-wrapper { display: block !important; overflow: visible !important; height: auto !important; min-height: 100vh; margin-top: 0; }
+            /* 1. ปลดล็อกระบบ Scroll หน้าจอให้เลื่อนได้ปกติ */
+            body { overflow-y: auto !important; height: auto; min-height: 100vh; display: block; }
+            .portal-wrapper { display: block !important; overflow: visible !important; height: auto !important; min-height: 100vh; margin-top: 56px; padding-bottom: 80px; }
             
-            /* 2. ย้ายแถบสลับระบบลงมาด้านล่าง */
-            #top-portal-nav { 
-                top: auto; 
-                bottom: calc(65px + env(safe-area-inset-bottom)); /* วางเหนือแท็บเมนูด้านล่างสุด */
-                height: 44px;
-                z-index: 45;
-            }
-            #btn-nav-user, #btn-nav-admin { font-size: 12px; }
+            /* 2. แถบสลับหน้าบ้าน/หลังบ้าน เกาะติดด้านบนสุดเสมอ */
+            #top-portal-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; }
             
-            /* 3. ปรับ Sidebar (ที่มีโลโก้) ให้อยู่บนสุด */
+            /* 3. แถบโลโก้ให้อยู่ถัดลงมาจาก Top Nav */
             .sidebar { 
-                position: fixed; top: 0; left: 0; right: 0; width: 100%; height: 70px;
+                position: fixed; top: 56px; left: 0; right: 0; width: 100%; height: 70px;
                 padding: 10px 20px; border-bottom: 1px solid #e2e8f0; 
                 flex-direction: row !important; align-items: center !important; justify-content: space-between !important;
                 z-index: 40; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             }
             .hide-on-mobile { display: none !important; }
+            #connection-status { display: none !important; }
             
-            /* เว้นพื้นที่ให้เนื้อหาหลบ Sidebar และแท็บด้านล่างทั้ง 2 ชั้น */
-            .content-area { padding: 90px 15px 140px 15px; height: auto !important; overflow: visible !important; min-height: calc(100vh + 1px); }
+            /* 4. เนื้อหาหลัก - เว้นระยะด้านบน 126px หลบแถบ Header คู่ และเว้นด้านล่างหลบแท็บเมนู */
+            .content-area { padding: 40px 15px 20px 15px; margin-top: 126px; height: auto !important; overflow: visible !important; min-height: calc(100vh - 126px); }
             
+            /* 5. ย้ายแถบเมนู (nav) ลงไปด้านล่างสุดของหน้าจอ */
             nav { 
-                position: fixed; bottom: 0; left: 0; right: 0; width: 100%; height: 65px;
+                position: fixed; bottom: 0; left: 0; right: 0; width: 100%; 
                 background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
                 border-top: 1px solid #e2e8f0; z-index: 50; 
                 display: flex !important; flex-direction: row !important; justify-content: space-around !important; 
-                padding: 5px 5px calc(5px + env(safe-area-inset-bottom)); margin-top: 0;
+                padding: 10px 5px; margin-top: 0;
+                padding-bottom: calc(10px + env(safe-area-inset-bottom));
                 box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
             }
-            .nav-btn { flex-direction: column !important; padding: 5px !important; flex: 1; text-align: center; margin-bottom: 0 !important; min-width: 0; }
+            .nav-btn { flex-direction: column !important; padding: 5px !important; flex: 1; text-align: center; margin-bottom: 0 !important; min-width: 0; border-radius: 0; }
             .nav-btn span.md\:hidden { font-size: 10px; margin-top: 4px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .nav-btn.active { background: transparent !important; color: var(--kmitl) !important; box-shadow: none !important; }
             .nav-btn i { margin: 0 auto; color: #94a3b8; }
             .nav-btn.active i { color: var(--kmitl); }
             
+            /* Modal & Calendar Fixes */
             .modal { align-items: flex-end; padding: 0; }
             .modal-content { max-height: 85vh; padding: 20px; border-radius: 24px 24px 0 0 !important; animation: slideUp 0.3s ease-out; margin: 0; max-width: 100%; }
             @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -225,7 +225,7 @@
                     </div>
                     <div class="relative w-full md:w-64">
                         <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"></i>
-                        <input type="text" oninput="filterUAssets(this.value)" placeholder="ค้นหาอุปกรณ์..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm shadow-sm">
+                        <input type="text" id="search-input" oninput="filterUAssets(this.value)" placeholder="ค้นหาอุปกรณ์..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm shadow-sm">
                     </div>
                 </div>
                 <div id="u-assets-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
@@ -439,6 +439,7 @@
             <div class="space-y-4">
                 <div id="selected-asset-info" class="p-4 bg-orange-50 rounded-xl mb-4 border border-orange-100"></div>
                 <input type="hidden" id="booking-asset-id">
+                
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-1">เบอร์โทรศัพท์ติดต่อ <span class="text-red-500">*</span></label>
                     <input type="tel" id="book-phone" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100" placeholder="ระบุตัวเลขเท่านั้น (เช่น 0812345678)" required>
@@ -454,27 +455,52 @@
                     </div>
                 </div>
                 <p class="text-[10px] text-red-500 font-bold">* ให้บริการเฉพาะเวลา 08:00 น. ถึง 17:00 น. เท่านั้น</p>
-                <button onclick="submitBooking(this)" class="btn-primary mt-4"><div class="loader"></div><span>ยืนยันการจอง</span></button>
+                
+                <button onclick="submitBooking(this)" class="btn-primary mt-4">
+                    <div class="loader"></div>
+                    <span>ยืนยันการจอง</span>
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- User: Camera Modal -->
+    <!-- Event Detail Modal -->
+    <div id="event-detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-black text-slate-800">รายละเอียดคิว</h3>
+                <button onclick="closeModal('event-detail-modal')" class="text-slate-400 hover:text-red-500"><i data-lucide="x"></i></button>
+            </div>
+            <div id="event-detail-content" class="space-y-4"></div>
+            <button onclick="closeModal('event-detail-modal')" class="w-full mt-6 bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">ปิดหน้าต่าง</button>
+        </div>
+    </div>
+
+    <!-- Camera Confirmation Modal -->
     <div id="camera-modal" class="modal">
         <div class="modal-content text-center">
             <h3 class="text-xl font-black text-slate-800 mb-2">ถ่ายรูปยืนยันรับอุปกรณ์</h3>
             <p class="text-xs text-slate-500 mb-4">ถ่ายรูปคุณคู่กับอุปกรณ์ หรืออัปโหลดรูปภาพเพื่อยืนยัน</p>
+            
             <div class="w-full bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl overflow-hidden mb-4 relative aspect-[3/4] md:aspect-video flex flex-col items-center justify-center p-4 hover:bg-slate-100 transition-colors">
+                <!-- Preview Image -->
                 <img id="camera-preview-img" class="w-full h-full object-cover hidden absolute inset-0 z-10 rounded-xl">
+                
+                <!-- UI อัปโหลด/ถ่ายรูป -->
                 <div id="camera-ui-prompt" class="z-0 flex flex-col items-center">
                     <i data-lucide="camera" class="w-10 h-10 text-slate-400 mb-2"></i>
                     <span class="text-sm font-bold text-slate-500">คลิกเพื่อเปิดกล้อง / เลือกรูปภาพ</span>
                 </div>
+                
+                <!-- File Input ซ่อนไว้แต่กดได้เต็มกรอบ -->
                 <input type="file" id="camera-file-input" accept="image/*" capture="environment" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" onchange="handleFallbackImage(this)">
             </div>
+
             <div class="flex gap-2">
                 <button onclick="closeCameraModal()" class="flex-1 bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">ยกเลิก</button>
-                <button onclick="takePhoto(this)" class="flex-1 bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 flex justify-center items-center gap-2 transition-colors"><i data-lucide="check-circle" class="w-5 h-5"></i> ยืนยันการรับ</button>
+                <button onclick="takePhoto(this)" class="flex-1 bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 flex justify-center items-center gap-2 transition-colors">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i> ยืนยันการรับ
+                </button>
             </div>
         </div>
     </div>
@@ -524,7 +550,9 @@
     <!-- Admin: Clear History Modal -->
     <div id="a-clear-history-modal" class="modal">
         <div class="modal-content text-center">
-            <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="alert-triangle" class="w-8 h-8"></i></div>
+            <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+            </div>
             <h3 class="text-xl font-black text-slate-800 mb-2">ยืนยันการล้างประวัติ?</h3>
             <p class="text-sm text-slate-500 mb-6">คุณกำลังจะลบประวัติการยืม-คืนที่เสร็จสิ้นแล้วทั้งหมด ข้อมูลนี้จะไม่สามารถกู้คืนได้</p>
             <div class="flex gap-3">
@@ -534,24 +562,12 @@
         </div>
     </div>
 
-    <!-- Shared: Event Detail Modal -->
-    <div id="event-detail-modal" class="modal">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-black text-slate-800">รายละเอียดรายการ</h3>
-                <button onclick="closeModal('event-detail-modal')" class="text-slate-400 hover:text-red-500"><i data-lucide="x"></i></button>
-            </div>
-            <div id="event-detail-content" class="space-y-4"></div>
-            <button onclick="closeModal('event-detail-modal')" class="w-full mt-6 bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">ปิดหน้าต่าง</button>
-        </div>
-    </div>
-
     <div id="toast-container"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ==========================================
         // 🔧 ตั้งค่า FIREBASE ของคุณ
@@ -586,18 +602,10 @@
         let uCalendar = null;
         let aCalendar = null;
         
-        let searchUAssets = '';
-        let searchUReq = '';
-        let searchAAssets = '';
-        let searchAReq = '';
-        let searchAHist = '';
-        
         let currentUserRole = null; 
-
-        // ตัวแปรเก็บ Instance ปฏิทิน
         let fpStart = null;
         let fpEnd = null;
-
+        
         let unsubAssets = null;
         let unsubBookings = null;
         let unsubAdmins = null;
@@ -612,30 +620,42 @@
             const portalAdmin = document.getElementById('portal-admin');
 
             if (portalType === 'user') {
-                portalUser.classList.remove('hidden');
-                portalAdmin.classList.add('hidden');
+                if(portalUser) portalUser.classList.remove('hidden');
+                if(portalAdmin) portalAdmin.classList.add('hidden');
                 
-                btnUser.classList.add('border-orange-500', 'text-orange-500');
-                btnUser.classList.remove('border-transparent', 'text-slate-400');
-                btnAdmin.classList.remove('border-orange-500', 'text-orange-500');
-                btnAdmin.classList.add('border-transparent', 'text-slate-400');
+                if(btnUser) {
+                    btnUser.classList.add('border-orange-500', 'text-orange-500');
+                    btnUser.classList.remove('border-transparent', 'text-slate-400');
+                }
+                if(btnAdmin) {
+                    btnAdmin.classList.remove('border-orange-500', 'text-orange-500');
+                    btnAdmin.classList.add('border-transparent', 'text-slate-400');
+                }
                 
-                if(uCalendar) uCalendar.render();
+                if(uCalendar) {
+                    setTimeout(() => uCalendar.render(), 100);
+                }
             } else if (portalType === 'admin') {
-                portalUser.classList.add('hidden');
-                portalAdmin.classList.remove('hidden');
+                if(portalUser) portalUser.classList.add('hidden');
+                if(portalAdmin) portalAdmin.classList.remove('hidden');
                 
-                btnAdmin.classList.add('border-orange-500', 'text-orange-500');
-                btnAdmin.classList.remove('border-transparent', 'text-slate-400');
-                btnUser.classList.remove('border-orange-500', 'text-orange-500');
-                btnUser.classList.add('border-transparent', 'text-slate-400');
+                if(btnAdmin) {
+                    btnAdmin.classList.add('border-orange-500', 'text-orange-500');
+                    btnAdmin.classList.remove('border-transparent', 'text-slate-400');
+                }
+                if(btnUser) {
+                    btnUser.classList.remove('border-orange-500', 'text-orange-500');
+                    btnUser.classList.add('border-transparent', 'text-slate-400');
+                }
                 
-                if(aCalendar) aCalendar.render();
+                if(aCalendar) {
+                    setTimeout(() => aCalendar.render(), 100);
+                }
             }
         }
 
         // ==========================================
-        // ฟังก์ชันส่งอีเมลผ่าน Google Apps Script
+        // ฟังก์ชันพื้นฐานทั่วไป
         // ==========================================
         async function sendEmailNotification(toEmail, subject, htmlMessage) {
             const scriptUrl = 'https://script.google.com/macros/s/AKfycbyAzTWFeYOlrZ2_cAbOuuiXVUlZ91DGFaW5gYLtrcOlwi5kosAqkfMnn9rmmB7bXsWJ/exec';
@@ -679,6 +699,7 @@
 
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
+            if(!container) return;
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             toast.innerText = message;
@@ -687,15 +708,25 @@
             setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        window.openModal = function(id) { document.getElementById(id).classList.add('active'); }
+        window.openModal = function(id) { 
+            const el = document.getElementById(id);
+            if(el) el.classList.add('active'); 
+        }
         window.closeModal = function(id) { 
-            document.getElementById(id).classList.remove('active'); 
+            const el = document.getElementById(id);
+            if(el) el.classList.remove('active'); 
             if(id === 'a-add-asset-modal') {
-                document.getElementById('a-asset-name').value = '';
-                document.getElementById('a-asset-desc').value = '';
-                document.getElementById('a-asset-image').value = '';
+                const nameEl = document.getElementById('a-asset-name');
+                const descEl = document.getElementById('a-asset-desc');
+                const imageEl = document.getElementById('a-asset-image');
+                if(nameEl) nameEl.value = '';
+                if(descEl) descEl.value = '';
+                if(imageEl) imageEl.value = '';
             }
-            if(id === 'a-invite-admin-modal') { document.getElementById('a-invite-email').value = ''; }
+            if(id === 'a-invite-admin-modal') { 
+                const inviteEl = document.getElementById('a-invite-email');
+                if(inviteEl) inviteEl.value = ''; 
+            }
         }
 
         async function compressImage(file) {
@@ -751,8 +782,10 @@
                 }
 
                 user = u;
-                document.getElementById('login-screen').classList.add('hidden'); 
-                document.getElementById('login-status').innerText = "กำลังตรวจสอบสิทธิ์...";
+                const loginScreen = document.getElementById('login-screen');
+                const loginStatus = document.getElementById('login-status');
+                if(loginScreen) loginScreen.classList.add('hidden'); 
+                if(loginStatus) loginStatus.innerText = "กำลังตรวจสอบสิทธิ์...";
 
                 let uName = 'ผู้ใช้งาน';
                 let uEmail = '-';
@@ -770,7 +803,6 @@
                     if (u.photoURL) uPic = u.photoURL;
                 }
 
-                // นำค่าไปใส่ใน UI ของหน้าบ้านและหลังบ้าน
                 const uUserNameEl = document.getElementById('u-user-display-name');
                 const uUserEmailEl = document.getElementById('u-user-email');
                 const uUserAvatarEl = document.getElementById('u-user-avatar');
@@ -791,11 +823,17 @@
                 user = null;
                 currentUserRole = null;
                 unsubscribeAll();
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('top-portal-nav').classList.add('hidden');
-                document.getElementById('portal-user').classList.add('hidden');
-                document.getElementById('portal-admin').classList.add('hidden');
-                document.getElementById('login-status').innerText = "";
+                const loginScreen = document.getElementById('login-screen');
+                const topNav = document.getElementById('top-portal-nav');
+                const portalUser = document.getElementById('portal-user');
+                const portalAdmin = document.getElementById('portal-admin');
+                const loginStatus = document.getElementById('login-status');
+                
+                if(loginScreen) loginScreen.classList.remove('hidden');
+                if(topNav) topNav.classList.add('hidden');
+                if(portalUser) portalUser.classList.add('hidden');
+                if(portalAdmin) portalAdmin.classList.add('hidden');
+                if(loginStatus) loginStatus.innerText = "";
             }
         });
 
@@ -821,14 +859,15 @@
         }
 
         function setupUINavbar() {
-            document.getElementById('top-portal-nav').classList.remove('hidden');
+            const topNav = document.getElementById('top-portal-nav');
+            if(topNav) topNav.classList.remove('hidden');
             const adminBtn = document.getElementById('btn-nav-admin');
 
             if (currentUserRole === 'User') {
-                adminBtn.classList.add('hidden');
+                if(adminBtn) adminBtn.classList.add('hidden');
                 switchPortal('user');
             } else {
-                adminBtn.classList.remove('hidden');
+                if(adminBtn) adminBtn.classList.remove('hidden');
                 switchPortal('admin'); 
                 const navManageAdmins = document.getElementById('nav-manage-admins');
                 if (currentUserRole === 'Main Admin') {
@@ -900,9 +939,10 @@
         // ==========================================
         window.switchUTab = function(tabId, btnElement) {
             document.querySelectorAll('.u-tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`u-tab-${tabId}`).classList.remove('hidden');
+            const targetTab = document.getElementById(`u-tab-${tabId}`);
+            if(targetTab) targetTab.classList.remove('hidden');
             document.querySelectorAll('.u-nav').forEach(el => el.classList.remove('active'));
-            btnElement.classList.add('active');
+            if(btnElement) btnElement.classList.add('active');
             if (tabId === 'calendar') {
                 setTimeout(() => {
                     if (!uCalendar) initUCalendar();
@@ -911,6 +951,7 @@
             }
         }
 
+        let searchUAssets = '';
         window.filterUAssets = function(query) {
             searchUAssets = query;
             renderUAssets();
@@ -960,13 +1001,17 @@
             const asset = assets.find(a => a.id === assetId);
             if(!asset) return;
             
-            document.getElementById('booking-asset-id').value = assetId;
-            document.getElementById('selected-asset-info').innerHTML = `
+            const bookingAssetIdEl = document.getElementById('booking-asset-id');
+            const selectedAssetInfoEl = document.getElementById('selected-asset-info');
+            const bookPhoneEl = document.getElementById('book-phone');
+            
+            if(bookingAssetIdEl) bookingAssetIdEl.value = assetId;
+            if(selectedAssetInfoEl) selectedAssetInfoEl.innerHTML = `
                 <p class="text-xs text-orange-600 font-bold uppercase tracking-wider mb-1">อุปกรณ์ที่เลือก</p>
                 <p class="font-black text-slate-800 text-lg">${asset.name}</p>
             `;
             
-            document.getElementById('book-phone').value = '';
+            if(bookPhoneEl) bookPhoneEl.value = '';
             
             if (!fpStart) {
                 const fpOptions = {
@@ -1000,12 +1045,14 @@
                         instance.calendarContainer.appendChild(btnContainer);
                     }
                 };
-                fpStart = flatpickr("#book-start", fpOptions);
-                fpEnd = flatpickr("#book-end", fpOptions);
+                const bs = document.getElementById("book-start");
+                const be = document.getElementById("book-end");
+                if(bs) fpStart = flatpickr(bs, fpOptions);
+                if(be) fpEnd = flatpickr(be, fpOptions);
             }
             
-            fpStart.clear();
-            fpEnd.clear();
+            if(fpStart) fpStart.clear();
+            if(fpEnd) fpEnd.clear();
             
             openModal('booking-modal');
         }
@@ -1120,13 +1167,14 @@
             }
         }
 
+        let searchUReq = '';
         window.filterURequests = function(query) {
             searchUReq = query;
             renderMyRequests();
         }
 
         function renderMyRequests() {
-            const list = document.getElementById('my-requests-list');
+            const list = document.getElementById('u-my-requests-list');
             if (!list) return;
             
             let myBookings = bookings.filter(b => b.userId === user?.uid).sort((a,b) => new Date(b.start) - new Date(a.start));
@@ -1178,11 +1226,14 @@
         window.openCameraModal = function(bookingId) {
             confirmBookingId = bookingId;
             currentCapturedImage = null;
-            document.getElementById('camera-file-input').value = ""; 
-
-            document.getElementById('camera-preview-img').src = '';
-            document.getElementById('camera-preview-img').classList.add('hidden');
-            document.getElementById('camera-ui-prompt').classList.remove('hidden');
+            
+            const cameraInput = document.getElementById('camera-file-input');
+            const previewImg = document.getElementById('camera-preview-img');
+            const promptEl = document.getElementById('camera-ui-prompt');
+            
+            if(cameraInput) cameraInput.value = ""; 
+            if(previewImg) { previewImg.src = ''; previewImg.classList.add('hidden'); }
+            if(promptEl) promptEl.classList.remove('hidden');
 
             openModal('camera-modal');
         }
@@ -1208,9 +1259,14 @@
                         
                         currentCapturedImage = canvas.toDataURL('image/jpeg', 0.7);
                         
-                        document.getElementById('camera-preview-img').src = currentCapturedImage;
-                        document.getElementById('camera-preview-img').classList.remove('hidden');
-                        document.getElementById('camera-ui-prompt').classList.add('hidden');
+                        const previewImg = document.getElementById('camera-preview-img');
+                        const promptEl = document.getElementById('camera-ui-prompt');
+                        
+                        if(previewImg) {
+                            previewImg.src = currentCapturedImage;
+                            previewImg.classList.remove('hidden');
+                        }
+                        if(promptEl) promptEl.classList.add('hidden');
                     };
                     img.src = e.target.result;
                 };
@@ -1242,6 +1298,9 @@
             btn.innerHTML = originalText;
         }
 
+        // ==========================================
+        // ฟังก์ชันระบบ Event Details และ ปฏิทินแบบรวม (ใช้ร่วมกัน)
+        // ==========================================
         function getCalendarEvents() {
             const stLabel = {
                 'pending': 'รออนุมัติ',
@@ -1276,6 +1335,89 @@
                     }
                 };
             });
+        }
+
+        window.showEventDetails = function(bookingId) {
+            const b = bookings.find(x => x.id === bookingId);
+            if (!b) return;
+            const a = assets.find(x => x.id === b.assetId);
+            const st = statusConfig[b.status] || { color: 'bg-slate-100', label: b.status };
+
+            const photoHTML = b.confirmationImage 
+                ? `<div class="col-span-2 mt-2"><p class="text-[10px] font-bold text-slate-400 uppercase mb-2">รูปถ่ายยืนยันรับอุปกรณ์</p><img src="${b.confirmationImage}" class="w-full rounded-xl border border-slate-200"></div>`
+                : '';
+
+            const timelineHTML = `
+                <div class="col-span-2 mt-2 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <p class="text-[11px] font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <i data-lucide="clock" class="w-4 h-4 text-slate-400"></i> บันทึกเวลาการทำรายการ
+                    </p>
+                    <div class="space-y-2 text-[11px] font-mono text-slate-600">
+                        <div class="flex justify-between items-center border-b border-slate-200 pb-1">
+                            <span class="font-bold text-slate-500">1. ทำรายการยืม:</span> 
+                            <span>${b.createdAt ? formatThaiDateTime(b.createdAt) : '-'}</span>
+                        </div>
+                        ${b.approvedAt ? `
+                        <div class="flex justify-between items-center border-b border-slate-200 pb-1">
+                            <span class="font-bold text-blue-600">2. อนุมัติคำขอ:</span> 
+                            <span class="text-blue-600">${formatThaiDateTime(b.approvedAt)}</span>
+                        </div>` : ''}
+                        ${b.receiveDate ? `
+                        <div class="flex justify-between items-center border-b border-slate-200 pb-1">
+                            <span class="font-bold text-indigo-600">3. มอบอุปกรณ์/รับของจริง:</span> 
+                            <span class="text-indigo-600">${formatThaiDateTime(b.receiveDate)}</span>
+                        </div>` : ''}
+                        ${b.status === 'returned' && b.returnDate ? `
+                        <div class="flex justify-between items-center pb-1">
+                            <span class="font-bold text-green-600">4. รับของคืน/คืนอุปกรณ์:</span> 
+                            <span class="text-green-600">${formatThaiDateTime(b.returnDate)}</span>
+                        </div>` : ''}
+                        ${b.rejectedAt ? `
+                        <div class="flex justify-between items-center pb-1 border-red-100">
+                            <span class="font-bold text-red-600">x. ปฏิเสธคำขอ:</span> 
+                            <span class="text-red-600">${formatThaiDateTime(b.rejectedAt)}</span>
+                        </div>` : ''}
+                        ${b.cancelledAt ? `
+                        <div class="flex justify-between items-center pb-1">
+                            <span class="font-bold text-slate-500">x. ยกเลิกรายการ:</span> 
+                            <span class="text-slate-500">${formatThaiDateTime(b.cancelledAt)}</span>
+                        </div>` : ''}
+                    </div>
+                </div>
+            `;
+
+            const content = `
+                <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 mb-2">
+                    <p class="text-[10px] font-bold text-orange-600 uppercase tracking-wider mb-1">อุปกรณ์</p>
+                    <p class="font-black text-lg text-slate-800">${a ? a.name : 'ไม่พบข้อมูลอุปกรณ์'}</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">ผู้ยืม</p>
+                        <p class="font-black text-slate-800 text-base leading-normal break-words">${b.user}</p>
+                        <p class="text-sm font-bold text-orange-600 font-mono mt-1 flex items-center gap-1"><i data-lucide="phone" class="w-4 h-4"></i> ${b.phone || 'ไม่ระบุ'}</p>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col justify-center items-start">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">สถานะ</p>
+                        <span class="px-3 py-1.5 rounded-full text-sm font-black uppercase ${st?.color} inline-block">${st?.label}</span>
+                    </div>
+                    <div class="col-span-2 p-4 bg-indigo-50 rounded-lg border border-indigo-100">
+                        <p class="text-xs font-bold text-indigo-400 uppercase mb-2">ระยะเวลาจอง</p>
+                        <p class="font-mono text-base font-black text-indigo-800 flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                            <span class="block sm:inline"><i data-lucide="calendar-clock" class="w-4 h-4 inline mb-0.5"></i> ${formatThaiDateTime(b.start)}</span>
+                            <span class="text-indigo-300 mx-2 hidden sm:inline">➜</span>
+                            <span class="block text-indigo-400 text-xs sm:hidden my-1">ถึง</span>
+                            <span class="block sm:inline"><i data-lucide="calendar-check" class="w-4 h-4 inline mb-0.5"></i> ${formatThaiDateTime(b.end)}</span>
+                        </p>
+                    </div>
+                    ${photoHTML}
+                    ${timelineHTML}
+                </div>
+            `;
+            const eventContentEl = document.getElementById('event-detail-content');
+            if(eventContentEl) eventContentEl.innerHTML = content;
+            openModal('event-detail-modal');
+            if (window.lucide) window.lucide.createIcons();
         }
 
         function initUCalendar() {
@@ -1316,14 +1458,53 @@
             uCalendar.addEventSource(getCalendarEvents());
         }
 
+        function initACalendar() {
+            const calendarEl = document.getElementById('a-calendar');
+            if(!calendarEl) return;
+            aCalendar = new FullCalendar.Calendar(calendarEl, { 
+                initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth', 
+                locale: 'th', 
+                events: getCalendarEvents(),
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listMonth' },
+                eventDisplay: 'block',
+                displayEventTime: false,
+                eventClick: function(info) { showEventDetails(info.event.id); },
+                eventContent: function(arg) {
+                    const statusLabel = arg.event.extendedProps.statusLabel;
+                    const assetName = arg.event.extendedProps.assetName;
+                    const userName = arg.event.extendedProps.userName;
+                    const bgColor = arg.event.backgroundColor;
+
+                    return {
+                        html: `
+                            <div class="custom-event-content" style="background-color: ${bgColor}; border-radius: 8px;">
+                                <span class="custom-event-badge">${statusLabel}</span>
+                                <span class="custom-event-title">${assetName}</span>
+                                <span class="custom-event-user">👤 ${userName}</span>
+                            </div>
+                        `
+                    };
+                }
+            });
+            aCalendar.render();
+        }
+
+        function updateACalendarEvents() {
+            if (!aCalendar) return;
+            const eventSource = aCalendar.getEventSources()[0];
+            if(eventSource) eventSource.remove();
+            aCalendar.addEventSource(getCalendarEvents());
+        }
+
         // ==========================================
         // โค้ดฝั่งระบบหลังบ้าน (แอดมิน)
         // ==========================================
         window.switchATab = function(tabId, btnElement) {
             document.querySelectorAll('.a-tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`a-tab-${tabId}`).classList.remove('hidden');
+            const targetTab = document.getElementById(`a-tab-${tabId}`);
+            if(targetTab) targetTab.classList.remove('hidden');
             document.querySelectorAll('.a-nav').forEach(el => el.classList.remove('active'));
-            btnElement.classList.add('active');
+            if(btnElement) btnElement.classList.add('active');
 
             if (tabId === 'calendar') {
                 setTimeout(() => {
@@ -1333,6 +1514,7 @@
             }
         }
 
+        let searchAAssets = '';
         window.filterAAssets = function(query) {
             searchAAssets = query;
             renderAAssets();
@@ -1411,6 +1593,7 @@
             }
         }
 
+        let searchAReq = '';
         window.filterARequests = function(query) {
             searchAReq = query;
             renderARequests();
@@ -1519,6 +1702,7 @@
             }
         }
 
+        let searchAHist = '';
         window.filterAHistory = function(query) {
             searchAHist = query;
             renderAHistory();
@@ -1670,7 +1854,9 @@
                 showToast('ถ่ายโอนสิทธิ์สำเร็จ คุณคือ Co-Admin แล้ว');
                 
                 currentUserRole = 'Co-Admin';
-                document.getElementById('nav-manage-admins').classList.add('hidden');
+                const navManageAdmins = document.getElementById('nav-manage-admins');
+                if(navManageAdmins) navManageAdmins.classList.add('hidden');
+                
                 switchATab('assets', document.querySelectorAll('.a-nav')[0]);
 
             } catch (e) {
@@ -1686,129 +1872,6 @@
                 badge.innerText = count; 
                 badge.classList.toggle('hidden', count === 0); 
             }
-        }
-
-        function initACalendar() {
-            const calendarEl = document.getElementById('a-calendar');
-            if(!calendarEl) return;
-            aCalendar = new FullCalendar.Calendar(calendarEl, { 
-                initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth', 
-                locale: 'th', 
-                events: getCalendarEvents(),
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listMonth' },
-                eventDisplay: 'block',
-                displayEventTime: false,
-                eventClick: function(info) { showEventDetails(info.event.id); },
-                eventContent: function(arg) {
-                    const statusLabel = arg.event.extendedProps.statusLabel;
-                    const assetName = arg.event.extendedProps.assetName;
-                    const userName = arg.event.extendedProps.userName;
-                    const bgColor = arg.event.backgroundColor;
-
-                    return {
-                        html: `
-                            <div class="custom-event-content" style="background-color: ${bgColor}; border-radius: 8px;">
-                                <span class="custom-event-badge">${statusLabel}</span>
-                                <span class="custom-event-title">${assetName}</span>
-                                <span class="custom-event-user">👤 ${userName}</span>
-                            </div>
-                        `
-                    };
-                }
-            });
-            aCalendar.render();
-        }
-
-        function updateACalendarEvents() {
-            if (!aCalendar) return;
-            const eventSource = aCalendar.getEventSources()[0];
-            if(eventSource) eventSource.remove();
-            aCalendar.addEventSource(getCalendarEvents());
-        }
-
-        // ==========================================
-        // ฟังก์ชันระบบ Event Details แบบรวม (ใช้ร่วมกัน)
-        // ==========================================
-        window.showEventDetails = function(bookingId) {
-            const b = bookings.find(x => x.id === bookingId);
-            if (!b) return;
-            const a = assets.find(x => x.id === b.assetId);
-            const st = statusConfig[b.status] || { color: 'bg-slate-100', label: b.status };
-
-            const photoHTML = b.confirmationImage 
-                ? `<div class="col-span-2 mt-2"><p class="text-[10px] font-bold text-slate-400 uppercase mb-2">รูปถ่ายยืนยันรับอุปกรณ์</p><img src="${b.confirmationImage}" class="w-full rounded-xl border border-slate-200"></div>`
-                : '';
-
-            const timelineHTML = `
-                <div class="col-span-2 mt-2 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <p class="text-[11px] font-bold text-slate-800 mb-3 flex items-center gap-2">
-                        <i data-lucide="clock" class="w-4 h-4 text-slate-400"></i> บันทึกเวลาการทำรายการ
-                    </p>
-                    <div class="space-y-2 text-[11px] font-mono text-slate-600">
-                        <div class="flex justify-between items-center border-b border-slate-200 pb-1">
-                            <span class="font-bold text-slate-500">1. ทำรายการยืม:</span> 
-                            <span>${b.createdAt ? formatThaiDateTime(b.createdAt) : '-'}</span>
-                        </div>
-                        ${b.approvedAt ? `
-                        <div class="flex justify-between items-center border-b border-slate-200 pb-1">
-                            <span class="font-bold text-blue-600">2. อนุมัติคำขอ:</span> 
-                            <span class="text-blue-600">${formatThaiDateTime(b.approvedAt)}</span>
-                        </div>` : ''}
-                        ${b.receiveDate ? `
-                        <div class="flex justify-between items-center border-b border-slate-200 pb-1">
-                            <span class="font-bold text-indigo-600">3. มอบอุปกรณ์/รับของจริง:</span> 
-                            <span class="text-indigo-600">${formatThaiDateTime(b.receiveDate)}</span>
-                        </div>` : ''}
-                        ${b.status === 'returned' && b.returnDate ? `
-                        <div class="flex justify-between items-center pb-1">
-                            <span class="font-bold text-green-600">4. รับของคืน/คืนอุปกรณ์:</span> 
-                            <span class="text-green-600">${formatThaiDateTime(b.returnDate)}</span>
-                        </div>` : ''}
-                        ${b.rejectedAt ? `
-                        <div class="flex justify-between items-center pb-1 border-red-100">
-                            <span class="font-bold text-red-600">x. ปฏิเสธคำขอ:</span> 
-                            <span class="text-red-600">${formatThaiDateTime(b.rejectedAt)}</span>
-                        </div>` : ''}
-                        ${b.cancelledAt ? `
-                        <div class="flex justify-between items-center pb-1">
-                            <span class="font-bold text-slate-500">x. ยกเลิกรายการ:</span> 
-                            <span class="text-slate-500">${formatThaiDateTime(b.cancelledAt)}</span>
-                        </div>` : ''}
-                    </div>
-                </div>
-            `;
-
-            const content = `
-                <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 mb-2">
-                    <p class="text-[10px] font-bold text-orange-600 uppercase tracking-wider mb-1">อุปกรณ์</p>
-                    <p class="font-black text-lg text-slate-800">${a ? a.name : 'ไม่พบข้อมูลอุปกรณ์'}</p>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">ผู้ยืม</p>
-                        <p class="font-black text-slate-800 text-base leading-normal break-words">${b.user}</p>
-                        <p class="text-sm font-bold text-orange-600 font-mono mt-1 flex items-center gap-1"><i data-lucide="phone" class="w-4 h-4"></i> ${b.phone || 'ไม่ระบุ'}</p>
-                    </div>
-                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col justify-center items-start">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">สถานะ</p>
-                        <span class="px-3 py-1.5 rounded-full text-sm font-black uppercase ${st?.color} inline-block">${st?.label}</span>
-                    </div>
-                    <div class="col-span-2 p-4 bg-indigo-50 rounded-lg border border-indigo-100">
-                        <p class="text-xs font-bold text-indigo-400 uppercase mb-2">ระยะเวลาจอง</p>
-                        <p class="font-mono text-base font-black text-indigo-800 flex flex-col sm:flex-row sm:items-center sm:gap-2">
-                            <span class="block sm:inline"><i data-lucide="calendar-clock" class="w-4 h-4 inline mb-0.5"></i> ${formatThaiDateTime(b.start)}</span>
-                            <span class="text-indigo-300 mx-2 hidden sm:inline">➜</span>
-                            <span class="block text-indigo-400 text-xs sm:hidden my-1">ถึง</span>
-                            <span class="block sm:inline"><i data-lucide="calendar-check" class="w-4 h-4 inline mb-0.5"></i> ${formatThaiDateTime(b.end)}</span>
-                        </p>
-                    </div>
-                    ${photoHTML}
-                    ${timelineHTML}
-                </div>
-            `;
-            document.getElementById('event-detail-content').innerHTML = content;
-            openModal('event-detail-modal');
-            if (window.lucide) window.lucide.createIcons();
         }
 
         initAuth();
