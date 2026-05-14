@@ -129,18 +129,23 @@
             .fc-list-event-title { padding: 4px 0 !important; border: none !important; }
             .fc-list-event:hover td { background-color: transparent !important; }
 
-            /* 7. ตารางของแอดมิน (เปลี่ยนเป็นแบบการ์ด) */
-            table, thead, tbody, th, td, tr { display: block; width: 100%; }
-            thead tr { display: none; }
-            table { min-width: 100% !important; border: none !important; }
-            tr { border: 1px solid #e2e8f0; border-radius: 16px; margin-bottom: 16px; background: white; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-            td { display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; padding: 6px 0 !important; border: none !important; text-align: left; }
-            td::before { content: attr(data-label); font-weight: 800; color: #64748b; font-size: 10px; text-transform: uppercase; margin-bottom: 4px; display: block; width: 100%; }
-            td > div, td > p { text-align: left; margin: 0; width: 100%; justify-content: flex-start; }
-            td.flex { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px;}
-            .card.overflow-x-auto { padding: 0px; background: transparent; border: none; box-shadow: none;} 
-            tbody tr td:last-child { margin-top: 10px; padding-top: 15px !important; border-top: 1px dashed #e2e8f0 !important; }
-            td.flex.justify-end { justify-content: flex-start !important; }
+            /* 7. ตารางของแอดมิน (เปลี่ยนเป็นแบบการ์ด โดยระบุ scope ที่ .admin-table-container เพื่อไม่ให้กระทบปฏิทิน) */
+            .admin-table-container table, 
+            .admin-table-container thead, 
+            .admin-table-container tbody, 
+            .admin-table-container th, 
+            .admin-table-container td, 
+            .admin-table-container tr { display: block; width: 100%; }
+            .admin-table-container thead tr { display: none; }
+            .admin-table-container table { min-width: 100% !important; border: none !important; }
+            .admin-table-container tr { border: 1px solid #e2e8f0; border-radius: 16px; margin-bottom: 16px; background: white; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+            .admin-table-container td { display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; padding: 6px 0 !important; border: none !important; text-align: left; }
+            .admin-table-container td::before { content: attr(data-label); font-weight: 800; color: #64748b; font-size: 10px; text-transform: uppercase; margin-bottom: 4px; display: block; width: 100%; }
+            .admin-table-container td > div, .admin-table-container td > p { text-align: left; margin: 0; width: 100%; justify-content: flex-start; }
+            .admin-table-container td.flex { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px;}
+            .admin-table-container { padding: 0px !important; background: transparent; border: none; box-shadow: none;} 
+            .admin-table-container tbody tr td:last-child { margin-top: 10px; padding-top: 15px !important; border-top: 1px dashed #e2e8f0 !important; }
+            .admin-table-container td.flex.justify-end { justify-content: flex-start !important; }
         }
     </style>
 </head>
@@ -352,7 +357,8 @@
                         <input type="text" oninput="filterARequests(this.value)" placeholder="ค้นหาผู้ยืม, อุปกรณ์..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 text-sm shadow-sm">
                     </div>
                 </div>
-                <div class="card overflow-x-auto p-0">
+                <!-- ใส่ admin-table-container ตรงนี้ -->
+                <div class="card overflow-x-auto p-0 admin-table-container">
                     <table class="w-full text-left min-w-[700px]">
                         <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider font-bold">
                             <tr>
@@ -392,7 +398,8 @@
                         </button>
                     </div>
                 </div>
-                <div class="card overflow-x-auto p-0">
+                <!-- ใส่ admin-table-container ตรงนี้ -->
+                <div class="card overflow-x-auto p-0 admin-table-container">
                     <table class="w-full text-left min-w-[700px]">
                         <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider font-bold">
                             <tr>
@@ -418,7 +425,8 @@
                         <i data-lucide="user-plus" class="w-4 h-4"></i> เชิญ Co-Admin
                     </button>
                 </div>
-                <div class="card overflow-x-auto">
+                <!-- ใส่ admin-table-container ตรงนี้ -->
+                <div class="card overflow-x-auto admin-table-container">
                     <table class="w-full text-left min-w-[500px]">
                         <thead class="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider font-bold">
                             <tr>
@@ -639,7 +647,10 @@
                 }
                 
                 if(uCalendar) {
-                    setTimeout(() => uCalendar.render(), 100);
+                    setTimeout(() => {
+                        uCalendar.updateSize();
+                        uCalendar.render();
+                    }, 100);
                 }
             } else if (portalType === 'admin') {
                 if(portalUser) portalUser.classList.add('hidden');
@@ -655,7 +666,10 @@
                 }
                 
                 if(aCalendar) {
-                    setTimeout(() => aCalendar.render(), 100);
+                    setTimeout(() => {
+                        aCalendar.updateSize();
+                        aCalendar.render();
+                    }, 100);
                 }
             }
         }
@@ -953,7 +967,10 @@
             if (tabId === 'calendar') {
                 setTimeout(() => {
                     if (!uCalendar) initUCalendar();
-                    else uCalendar.render(); 
+                    else {
+                        uCalendar.updateSize();
+                        uCalendar.render(); 
+                    }
                 }, 100);
             }
         }
@@ -1003,7 +1020,7 @@
             if(window.lucide) lucide.createIcons();
         }
 
-        window.openBookingModal = function(assetId) {
+        function openBookingModal(assetId) {
             if(!user) return showToast('กรุณาเข้าสู่ระบบก่อนทำรายการ', 'error');
             const asset = assets.find(a => a.id === assetId);
             if(!asset) return;
@@ -1435,6 +1452,8 @@
                 locale: 'th', 
                 events: getCalendarEvents(),
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listMonth' },
+                height: 'auto',
+                contentHeight: 'auto',
                 eventDisplay: 'block',
                 displayEventTime: false,
                 eventClick: function(info) { showEventDetails(info.event.id); },
@@ -1473,6 +1492,8 @@
                 locale: 'th', 
                 events: getCalendarEvents(),
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listMonth' },
+                height: 'auto',
+                contentHeight: 'auto',
                 eventDisplay: 'block',
                 displayEventTime: false,
                 eventClick: function(info) { showEventDetails(info.event.id); },
@@ -1516,7 +1537,10 @@
             if (tabId === 'calendar') {
                 setTimeout(() => {
                     if (!aCalendar) initACalendar();
-                    else aCalendar.render(); 
+                    else {
+                        aCalendar.updateSize();
+                        aCalendar.render(); 
+                    }
                 }, 100);
             }
         }
