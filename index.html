@@ -1020,7 +1020,7 @@
             if(window.lucide) lucide.createIcons();
         }
 
-        function openBookingModal(assetId) {
+        window.openBookingModal = function(assetId) {
             if(!user) return showToast('กรุณาเข้าสู่ระบบก่อนทำรายการ', 'error');
             const asset = assets.find(a => a.id === assetId);
             if(!asset) return;
