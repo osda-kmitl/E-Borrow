@@ -1906,7 +1906,7 @@
                     <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
                         <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">ผู้ยืม</p>
                         <p class="font-black text-slate-800 text-base leading-normal break-words">${b.user}</p>
-                        <p class="text-sm font-bold text-orange-600 font-mono mt-1 flex items-center gap-1"><i data-lucide="phone" class="w-4 h-4"></i> ${b.phone || 'ไม่ระบุ'}</p>
+                        ${(currentUserRole === 'Main Admin' || currentUserRole === 'Co-Admin') ? `<p class="text-sm font-bold text-orange-600 font-mono mt-1 flex items-center gap-1"><i data-lucide="phone" class="w-4 h-4"></i> ${b.phone || '-'}</p>` : ''}
                     </div>
                     <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col justify-center items-start">
                         <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">สถานะ</p>
