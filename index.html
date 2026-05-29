@@ -133,7 +133,6 @@
             border-radius: 10px;
             font-weight: 700;
             transition: all 0.2s;
-            width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -216,11 +215,11 @@
         }
 
         .loader {
-            border: 2px solid #ffffff;
-            border-top: 2px solid transparent;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--kmitl);
             border-radius: 50%;
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             animation: spin 1s linear infinite;
             display: none;
         }
@@ -332,7 +331,7 @@
                 background: white;
             }
 
-            .sidebar>div:first-child {
+            .sidebar > div:first-child {
                 margin-bottom: 0 !important;
             }
 
@@ -428,11 +427,11 @@
 
             @keyframes slideUp {
                 from {
-                    transform: translateY(100%);
+                    transform: translateY(100%)
                 }
 
                 to {
-                    transform: translateY(0);
+                    transform: translateY(0)
                 }
             }
 
@@ -569,8 +568,8 @@
         <div class="flex w-full max-w-5xl h-full">
             <button id="btn-nav-user" onclick="switchPortal('user')"
                 class="flex-1 font-bold flex items-center justify-center gap-2 text-sm md:text-base border-b-4 border-orange-500 text-orange-500 bg-slate-800 transition-all">
-                <i data-lucide="user" class="w-4 h-4 md:w-5 md:h-5"></i> <span
-                    class="hidden md:inline">ระบบหน้าบ้าน</span> (ผู้ใช้)
+                <i data-lucide="user" class="w-4 h-4 md:w-5 md:h-5"></i> <span class="hidden md:inline">ระบบหน้าบ้าน</span>
+                (ผู้ใช้)
             </button>
             <button id="btn-nav-admin" onclick="switchPortal('admin')"
                 class="flex-1 font-bold flex items-center justify-center gap-2 text-sm md:text-base border-b-4 border-transparent text-slate-400 hover:bg-slate-800 hover:text-white transition-all hidden">
@@ -584,13 +583,12 @@
     <div id="login-screen" class="fixed inset-0 bg-slate-50 z-[100] flex items-center justify-center">
         <div
             class="bg-white p-10 rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] max-w-sm w-full text-center border border-slate-200 mx-4">
-            <div
-                class="w-20 h-20 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-6 text-orange-600">
+            <div class="w-20 h-20 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-6 text-orange-600">
                 <i data-lucide="layers" class="w-10 h-10"></i>
             </div>
             <h2 class="text-2xl font-black text-slate-800 mb-2">OSDA System</h2>
-            <p class="text-sm text-slate-500 mb-8 font-medium">ระบบยืม-คืนอุปกรณ์<br><span class="text-red-500">*
-                    อนุญาตเฉพาะอีเมล @kmitl.ac.th</span></p>
+            <p class="text-sm text-slate-500 mb-8 font-medium">ระบบยืม-คืนอุปกรณ์<br><span
+                    class="text-red-500">* อนุญาตเฉพาะอีเมล @kmitl.ac.th</span></p>
 
             <button onclick="loginWithGoogle()"
                 class="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm">
@@ -605,8 +603,7 @@
     <div id="portal-user" class="portal-wrapper hidden">
         <div class="sidebar flex-row justify-between items-center md:flex-col md:items-start md:justify-start">
             <div class="flex items-center gap-3 mb-0 md:mb-10 w-auto shrink-0">
-                <div
-                    class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600 shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600 shrink-0">
                     <i data-lucide="monitor-smartphone"></i>
                 </div>
                 <div>
@@ -723,7 +720,7 @@
                     class="w-10 h-10 md:w-16 md:h-16 rounded-full mx-auto md:mb-1 bg-slate-200 overflow-hidden border-2 border-white shadow-sm hide-on-mobile shrink-0">
                     <img id="a-admin-avatar" src="" class="w-full h-full object-cover">
                 </div>
-                <div class="flex-grow overflow-hidden hide-on-mobile min-w-0 w-full">
+                <div class="flex-grow overflow-hidden hide-on-mobile min-w-0 w-full" id="admin-info-desktop">
                     <h3 id="a-admin-name" class="font-bold text-slate-800 text-sm truncate">กำลังโหลด...</h3>
                     <p id="a-admin-email" class="text-[10px] text-slate-500 truncate">-</p>
                 </div>
@@ -788,8 +785,7 @@
                         </button>
                     </div>
                 </div>
-                <div id="a-assets-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                </div>
+                <div id="a-assets-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
             </div>
 
             <div id="a-tab-requests" class="a-tab-content hidden">
@@ -805,7 +801,6 @@
                             class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-orange-500 text-sm shadow-sm">
                     </div>
                 </div>
-                <!-- ใส่ admin-table-container ตรงนี้ -->
                 <div class="card overflow-x-auto p-0 admin-table-container">
                     <table class="w-full text-left min-w-[700px]">
                         <thead
@@ -852,7 +847,6 @@
                         </button>
                     </div>
                 </div>
-                <!-- ใส่ admin-table-container ตรงนี้ -->
                 <div class="card overflow-x-auto p-0 admin-table-container">
                     <table class="w-full text-left min-w-[700px]">
                         <thead
@@ -880,7 +874,6 @@
                         <i data-lucide="user-plus" class="w-4 h-4"></i> เชิญ Co-Admin
                     </button>
                 </div>
-                <!-- ใส่ admin-table-container ตรงนี้ -->
                 <div class="card overflow-x-auto admin-table-container">
                     <table class="w-full text-left min-w-[500px]">
                         <thead
@@ -1168,7 +1161,7 @@
         // ฟังก์ชันพื้นฐานทั่วไป
         // ==========================================
         async function sendEmailNotification(toEmail, subject, htmlMessage) {
-            const scriptUrl = 'https://script.google.com/macros/s/AKfycbzszfJkOrqe6vJD6NBkRFEUIVYl0AcxKw4B1gr4mSI9zCTZcUJy1CsTRJwt3GMVOLcAww/exec';
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbyAzTWFeYOlrZ2_cAbOuuiXVUlZ91DGFaW5gYLtrcOlwi5kosAqkfMnn9rmmB7bXsWJ/exec';
             try {
                 const params = new URLSearchParams();
                 params.append('to_email', toEmail);
@@ -1190,7 +1183,7 @@
 
         function formatThaiDateTime(dateStr) {
             if (!dateStr) return '-';
-            if (dateStr.includes(' น.')) return dateStr.replace(' น.', '&nbsp;น.');
+            if (dateStr.includes(' น.')) return dateStr; // ถ้าแปลงแล้วให้ข้ามไป
             try {
                 const dateObj = new Date(dateStr);
                 if (isNaN(dateObj)) return dateStr;
@@ -1357,7 +1350,7 @@
                     return myRoleDoc.role;
                 } else {
                     if (email === 'sharnjira.ki@kmitl.ac.th') {
-                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'adminRoles', 'ADM-' + Date.now()), {
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'adminRoles', email), {
                             email: email, role: 'Main Admin', createdAt: new Date().toISOString()
                         });
                         return 'Main Admin';
@@ -1415,6 +1408,8 @@
                 renderAAssets();
                 if (uCalendar) updateUCalendarEvents();
                 if (aCalendar) updateACalendarEvents();
+            }, (error) => {
+                console.error("Assets snapshot error:", error);
             });
 
             unsubBookings = onSnapshot(bookingsRef, (snapshot) => {
@@ -1426,12 +1421,16 @@
                 updatePendingBadge();
                 if (uCalendar) updateUCalendarEvents();
                 if (aCalendar) updateACalendarEvents();
+            }, (error) => {
+                console.error("Bookings snapshot error:", error);
             });
 
             if (currentUserRole === 'Main Admin' || currentUserRole === 'Co-Admin') {
                 unsubAdmins = onSnapshot(adminsRef, (snapshot) => {
                     adminUsersList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     if (currentUserRole === 'Main Admin') renderAdmins();
+                }, (error) => {
+                    console.error("Admins snapshot error:", error);
                 });
             }
         }
@@ -1612,7 +1611,6 @@
                     assetId,
                     user: username,
                     userId: userId,
-                    userEmail: user.email || '',
                     phone: phone,
                     start,
                     end,
@@ -1640,7 +1638,6 @@
                     <div style="font-family: sans-serif; color: #333;">
                         <h2 style="color: #FF6600;">มีคำขอยืมอุปกรณ์ใหม่ 📦</h2>
                         <p><strong>ผู้ยืม:</strong> ${username}</p>
-                        <p><strong>อีเมลติดต่อ:</strong> ${user.email || 'ไม่ระบุ (โหมดทดสอบ)'}</p>
                         <p><strong>อุปกรณ์:</strong> ${assetName}</p>
                         <p><strong>เวลารับของ:</strong> ${formatThaiDateTime(start)}</p>
                         <p><strong>เวลาคืนของ:</strong> ${formatThaiDateTime(end)}</p>
@@ -2163,7 +2160,7 @@
                         <p class="text-sm font-bold text-orange-600 font-mono mt-1 flex items-center gap-1"><i data-lucide="phone" class="w-4 h-4"></i> ${b.phone || '-'}</p>
                     </td>
                     <td class="p-4" data-label="ช่วงเวลา">
-                        <div class="bg-indigo-50 text-indigo-700 font-mono font-bold text-sm px-3 py-2 rounded-lg border border-indigo-100 inline-block w-full md:w-auto">
+                        <div class="bg-indigo-50 text-indigo-700 font-mono font-bold text-sm px-3 py-2 rounded-lg border border-indigo-100 inline-block">
                             <div class="mb-1"><span class="text-[10px] text-indigo-400 uppercase tracking-wider block leading-none">รับ:</span> ${formatThaiDateTime(b.start)}</div>
                             <div><span class="text-[10px] text-indigo-400 uppercase tracking-wider block leading-none">คืน:</span> ${formatThaiDateTime(b.end)}</div>
                         </div>
@@ -2328,8 +2325,7 @@
             btn.querySelector('.loader').style.display = 'block';
 
             try {
-                const newId = 'ADM-' + Date.now();
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'adminRoles', newId), {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'adminRoles', emailInput), {
                     email: emailInput,
                     role: 'Co-Admin',
                     createdAt: new Date().toISOString()
