@@ -343,7 +343,7 @@
                 display: none !important;
             }
 
-            /* 4. พื้นที่เนื้อหาหลัก: เลื่อนขึ้นลงได้ และเว้นที่ว่างด้านล่าง 120px กันเมนูบัง */
+            /* 4. พื้นที่เนื้อหาหลัก: :เลื่อนขึ้นลงได้ และเว้นที่ว่างด้านล่าง 120px กันเมนูบัง */
             .content-area {
                 flex-grow: 1;
                 overflow-y: auto;
@@ -1897,6 +1897,12 @@
                 </div>
             `;
 
+            // ดึงสิทธิ์ของผู้ใช้เพื่อเลือกว่าจะแสดงเบอร์โทรหรือไม่ (เฉพาะ Admin แอดมินหลังบ้านเท่านั้น)
+            const isAdmin = (currentUserRole === 'Main Admin' || currentUserRole === 'Co-Admin');
+            const phoneHTML = isAdmin 
+                ? `<p class="text-sm font-bold text-orange-600 font-mono mt-1 flex items-center gap-1"><i data-lucide="phone" class="w-4 h-4"></i> ${b.phone || '-'}</p>`
+                : '';
+
             const content = `
                 <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 mb-2">
                     <p class="text-[10px] font-bold text-orange-600 uppercase tracking-wider mb-1">อุปกรณ์</p>
@@ -1906,7 +1912,7 @@
                     <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
                         <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">ผู้ยืม</p>
                         <p class="font-black text-slate-800 text-base leading-normal break-words">${b.user}</p>
-                        ${(currentUserRole === 'Main Admin' || currentUserRole === 'Co-Admin') ? `<p class="text-sm font-bold text-orange-600 font-mono mt-1 flex items-center gap-1"><i data-lucide="phone" class="w-4 h-4"></i> ${b.phone || '-'}</p>` : ''}
+                        ${phoneHTML}
                     </div>
                     <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col justify-center items-start">
                         <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">สถานะ</p>
@@ -2155,7 +2161,7 @@
                     <td class="p-4" data-label="อุปกรณ์">
                         <div class="font-bold text-slate-800 cursor-pointer hover:text-orange-500" onclick="showEventDetails('${b.id}')">${asset?.name || 'อุปกรณ์ถูกลบ'}</div>
                     </td>
-                    <td class="p-4" data-label="ผู้ยืม / ติดต่อ">
+                    <td class="p-4" data-label="ผู้ยืม / เบอร์ติดต่อ">
                         <p class="font-black text-slate-800 text-base">${b.user}</p>
                         <p class="text-sm font-bold text-orange-600 font-mono mt-1 flex items-center gap-1"><i data-lucide="phone" class="w-4 h-4"></i> ${b.phone || '-'}</p>
                     </td>
