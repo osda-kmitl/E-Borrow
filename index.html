@@ -331,7 +331,7 @@
                 background: white;
             }
 
-            .sidebar > div:first-child {
+            .sidebar>div:first-child {
                 margin-bottom: 0 !important;
             }
 
@@ -568,7 +568,8 @@
         <div class="flex w-full max-w-5xl h-full">
             <button id="btn-nav-user" onclick="switchPortal('user')"
                 class="flex-1 font-bold flex items-center justify-center gap-2 text-sm md:text-base border-b-4 border-orange-500 text-orange-500 bg-slate-800 transition-all">
-                <i data-lucide="user" class="w-4 h-4 md:w-5 md:h-5"></i> <span class="hidden md:inline">ระบบหน้าบ้าน</span>
+                <i data-lucide="user" class="w-4 h-4 md:w-5 md:h-5"></i> <span
+                    class="hidden md:inline">ระบบหน้าบ้าน</span>
                 (ผู้ใช้)
             </button>
             <button id="btn-nav-admin" onclick="switchPortal('admin')"
@@ -583,12 +584,13 @@
     <div id="login-screen" class="fixed inset-0 bg-slate-50 z-[100] flex items-center justify-center">
         <div
             class="bg-white p-10 rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] max-w-sm w-full text-center border border-slate-200 mx-4">
-            <div class="w-20 h-20 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-6 text-orange-600">
+            <div
+                class="w-20 h-20 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-6 text-orange-600">
                 <i data-lucide="layers" class="w-10 h-10"></i>
             </div>
             <h2 class="text-2xl font-black text-slate-800 mb-2">OSDA System</h2>
-            <p class="text-sm text-slate-500 mb-8 font-medium">ระบบยืม-คืนอุปกรณ์<br><span
-                    class="text-red-500">* อนุญาตเฉพาะอีเมล @kmitl.ac.th</span></p>
+            <p class="text-sm text-slate-500 mb-8 font-medium">ระบบยืม-คืนอุปกรณ์<br><span class="text-red-500">*
+                    อนุญาตเฉพาะอีเมล @kmitl.ac.th</span></p>
 
             <button onclick="loginWithGoogle()"
                 class="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm">
@@ -603,7 +605,8 @@
     <div id="portal-user" class="portal-wrapper hidden">
         <div class="sidebar flex-row justify-between items-center md:flex-col md:items-start md:justify-start">
             <div class="flex items-center gap-3 mb-0 md:mb-10 w-auto shrink-0">
-                <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600 shrink-0">
+                <div
+                    class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600 shrink-0">
                     <i data-lucide="monitor-smartphone"></i>
                 </div>
                 <div>
@@ -785,7 +788,8 @@
                         </button>
                     </div>
                 </div>
-                <div id="a-assets-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+                <div id="a-assets-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                </div>
             </div>
 
             <div id="a-tab-requests" class="a-tab-content hidden">
@@ -1899,7 +1903,7 @@
 
             // ดึงสิทธิ์ของผู้ใช้เพื่อเลือกว่าจะแสดงเบอร์โทรหรือไม่ (เฉพาะ Admin แอดมินหลังบ้านเท่านั้น)
             const isAdmin = (currentUserRole === 'Main Admin' || currentUserRole === 'Co-Admin');
-            const phoneHTML = isAdmin 
+            const phoneHTML = isAdmin
                 ? `<p class="text-sm font-bold text-orange-600 font-mono mt-1 flex items-center gap-1"><i data-lucide="phone" class="w-4 h-4"></i> ${b.phone || '-'}</p>`
                 : '';
 
